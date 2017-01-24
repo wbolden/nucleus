@@ -96,9 +96,19 @@ i=1;
 for arg in "$@"
 do
     echo "
+
+function filter(data, size){
+  if(data.children == undefined) return;
+  data.children = data.children.filter(function(a){return a.size>size;});
+  for(var i = 0; i < data.children.length; i++){
+    filter(data.children[i], size);
+  }
+}
+
+
 d3.json(\""$arg"\", function(error, root) {
   if (error) throw error;
-
+  filter(root, "$filter");
   var focus = root,
       nodes = pack.nodes(root),
       view;
@@ -110,22 +120,22 @@ d3.json(\""$arg"\", function(error, root) {
       .style(\"fill\", function(d) { return color(d.color); })      
       .on(\"click\", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
 
-  circle = circle.filter(function(d) {return (d.size >= "$filter") && (d.name != \"\")});
+  circle = circle.filter(function(d) {return (d.size >= "0") && (d.name != \"\")});
 //#      .style(\"stroke-dasharray\", \"5,5\", \"important\");
 //#      .style(\"stroke\", \"#000\", \"important\")
 //#      .style(\"stroke-width\", 1, \"important\");
-  
+  /*
   var text = svg"$i".selectAll(\"text\")
       .data(nodes)
     .enter().append(\"text\")
       .attr(\"class\", \"label\")
       .style(\"fill-opacity\", function(d) { return d.parent === root ? 1 : 0; })
-      .style(\"display\", function(d) { return (d.parent === root && d.size >= "$filter") ? \"inline\" : \"none\"; })
+      .style(\"display\", function(d) { return (d.parent === root && d.size >= "0") ? \"inline\" : \"none\"; })
       .text( function(d) { return d.name; });
 
-  text = text.filter(function(d) {return (d.size >= "$filter")});
-  
-  var node = svg"$i".selectAll(\"circle,text\");
+  text = text.filter(function(d) {return (d.size >= "0")});
+  */
+  var node = svg"$i".selectAll(\"circle\");
 
   d3.select(\"#"dv_$i"\")
       .style(\"background\", \"rgb(255,255,255)\")
@@ -151,7 +161,7 @@ d3.json(\""$arg"\", function(error, root) {
 
     circle.filter(function(d) {return (d.fl == \""$arg"\" && (d.parent !== focus && d !== focus)); })
     .style(\"stroke\", \"#000\")
-    .style(\"stroke-width\", 1)
+    .style(\"stroke-width\", 0.25)
     .style(\"stroke-dasharray\", \"none\");
     
 
@@ -163,13 +173,14 @@ d3.json(\""$arg"\", function(error, root) {
           return function(t) { zoomTo(i(t)); };
         });
   
-
+	/*
     transition.selectAll(\"text\")
-      .filter(function(d) { return (d.size >= "$filter" && d.fl == \""$arg"\" &&
+      .filter(function(d) { return (d.size >= "0" && d.fl == \""$arg"\" &&
       (d.parent === focus || (d === focus && d.children == null) || this.style.display === \"inline\")); })
         .style(\"fill-opacity\", function(d) { return (d.parent === focus || (d === focus && d.children == null))? 1 : 0; })
         .each(\"start\", function(d) { if (d.parent === focus || (d === focus && d.children == null)) this.style.display = \"inline\"; })
         .each(\"end\", function(d) { if (d.parent !== focus && (d !== focus && d.children == null)) this.style.display = \"none\"; });
+     */
   }
   function zoomTo(v) {
     var k = diameter / v[2]; view = v;
