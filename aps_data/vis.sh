@@ -161,7 +161,7 @@ d3.json(\""$arg"\", function(error, root) {
 
     circle.filter(function(d) {return (d.fl == \""$arg"\" && (d.parent !== focus && d !== focus)); })
     .style(\"stroke\", \"#000\")
-    .style(\"stroke-width\", 0.25)
+    .style(\"stroke-width\", 0.5)
     .style(\"stroke-dasharray\", \"none\");
     
 
