@@ -105,6 +105,16 @@ function filter(data, size){
   }
 }
 
+//Parses the existing namestring to remove unwanted values
+function parsename(str) {
+  var split = str.split(\" \");
+  var density = parseFloat(split[1]);
+  if(density == -1.0){
+    split[1] = \"<0.01\";
+  }
+  split[0] = split[0].concat(\" \");
+  return split[0].concat(split[1])                     
+}
 
 d3.json(\""$arg"\", function(error, root) {
   if (error) throw error;
@@ -120,13 +130,13 @@ d3.json(\""$arg"\", function(error, root) {
       .style(\"fill\", function(d) { return color(d.color); })      
       .on(\"click\", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(),
                                         svg1.select(\"#subgraph_id\")
-                                            .text(d.name);
+                                            .text(parsename(d.name));
                                    else
                                         svg1.select(\"#subgraph_id\")
-                                            .text(root.name);
+                                            .text(parsename(root.name));
                                     
       })
-      .on(\"mouseover\", function(d) {svg1.select(\"#subgraph_id\").text(d.name)});
+      .on(\"mouseover\", function(d) {svg1.select(\"#subgraph_id\").text(parsename(d.name))});
       
   svg1.append(\"text\")
     .style(\"font-size\", \"30px\")
@@ -135,7 +145,7 @@ d3.json(\""$arg"\", function(error, root) {
     .attr(\"x\", -80)
     .attr(\"y\", -300)
     .attr(\"id\",\"subgraph_id\")
-    .text(root.name);
+    .text(parsename(root.name));
     
   circle = circle.filter(function(d) {return (d.size >= "0") && (d.name != \"\")});
 //#      .style(\"stroke-dasharray\", \"5,5\", \"important\");
