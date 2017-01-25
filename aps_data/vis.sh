@@ -125,7 +125,8 @@ d3.json(\""$arg"\", function(error, root) {
                                         svg1.select(\"#subgraph_id\")
                                             .text(root.name);
                                     
-      });
+      })
+      .on(\"mouseover\", function(d) {svg1.select(\"#subgraph_id\").text(d.name)});
       
   svg1.append(\"text\")
     .style(\"font-size\", \"30px\")
