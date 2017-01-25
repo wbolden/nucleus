@@ -118,8 +118,24 @@ d3.json(\""$arg"\", function(error, root) {
     .enter().append(\"circle\")      
       .attr(\"class\", function(d) { return d.parent ? d.children ? \"node\" : \"node node--leaf\" : \"node node--root\"; })
       .style(\"fill\", function(d) { return color(d.color); })      
-      .on(\"click\", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
-
+      .on(\"click\", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(),
+                                        svg1.select(\"#subgraph_id\")
+                                            .text(d.name);
+                                   else
+                                        svg1.select(\"#subgraph_id\")
+                                            .text(root.name);
+                                    
+      });
+      
+  svg1.append(\"text\")
+    .style(\"font-size\", \"30px\")
+    .style(\"fill\", \"white\")
+    .attr(\"class\", \"mytext\")
+    .attr(\"x\", -80)
+    .attr(\"y\", -300)
+    .attr(\"id\",\"subgraph_id\")
+    .text(root.name);
+    
   circle = circle.filter(function(d) {return (d.size >= "0") && (d.name != \"\")});
 //#      .style(\"stroke-dasharray\", \"5,5\", \"important\");
 //#      .style(\"stroke\", \"#000\", \"important\")
