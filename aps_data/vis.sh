@@ -112,6 +112,9 @@ function parsename(str) {
   if(density == -1.0){
     split[1] = \"<0.01\";
   }
+  if(split[0] == \"4294967277\"){
+  	split[0] = \"Not recorded\"
+  }
   split[0] = split[0].concat(\" \");
   return split[0].concat(split[1])                     
 }
