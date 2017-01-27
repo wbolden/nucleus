@@ -179,6 +179,18 @@ d3.tsv(\"aps-citations_cleaned.mtx_23_IMPR_fakedb\", function(data) {
   console.log(\"loaded fakedb\");
 });
 
+//Returns an array of paper filepaths for a given node index
+function getPaperFilepaths(nodeindex){
+  //Gets paper ids for all papers in nodeindex
+  var vertices = fakedb[nodeindex];
+  filepaths = []
+  for(var i = 0; i < vertices.length; i++){
+    //Gets filepath to metadata from paperid
+    filepaths.push(mapfile[vertices[i]]);
+  }
+  console.log(filepaths);
+  return filepaths;
+}
 
 //Quick function to verify that fakedb and mapfile work correctly (they do)
 function loadpapers(nodeindex){
@@ -202,7 +214,7 @@ d3.json(\""$arg"\", function(error, root) {
     .enter().append(\"circle\")      
       .attr(\"class\", function(d) { return d.parent ? d.children ? \"node\" : \"node node--leaf\" : \"node node--root\"; })
       .style(\"fill\", function(d) { return color(d.color); })      
-      .on(\"click\", function(d) { loadpapers(d.index);
+      .on(\"click\", function(d) { getPaperFilepaths(d.index);
 
       								if (focus !== d) zoom(d), d3.event.stopPropagation(),
                                         svg1.select(\"#subgraph_id\")
