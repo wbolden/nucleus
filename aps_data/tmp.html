@@ -32,13 +32,17 @@
 
 </style>
 <body>
-    <div class="container" style="width: 100%;">
+    <div class="container" style="width: 2000px;">
 
-    <div id="dv_1" style="width: 980px; float: left;">
-        <center>socfb-MIT.mtx_23_circle.json</center>
-    </div>
-
-</div>  
+        <div id="dv_1" style="width: 980px; float: left;">
+            <center>socfb-MIT.mtx_23_circle.json</center>
+        </div>
+        
+        ///////////ADD THIS//////////////////
+        <div id="data" style="width: 490px; float: left; background-color: green;">
+        </div>
+        ///////////////////////////////
+    </div>  
 </body>
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -63,6 +67,20 @@ var svg1 = d3.select("#dv_1").append("svg")
     .append("g")
     .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
+//////ADD THIS////////////////////
+var svg2 = d3.select("#data").append("svg")
+    .attr("width", diameter/2)
+    .attr("height", diameter)
+    .append("g")
+    .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+    
+svg2.append("text")
+    .attr("id","mydata")
+    .attr("x", -diameter/2 + 40)
+    .attr("y", -diameter/2 + 40)
+    .text("hello this a test");
+////////////////////////////////////////////
+    
 d3.json("socfb-MIT.mtx_23_circle.json", function(error, root) {
   if (error) throw error;
 
@@ -75,22 +93,31 @@ d3.json("socfb-MIT.mtx_23_circle.json", function(error, root) {
     .enter().append("circle")      
       .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
       .style("fill", function(d) { return color(d.color); })      
-      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
+      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation();
+                                ///////////////This is an example//////////////////////////
+                                 for (i = 0; i< array.length; i++)
+                                    //get paper id and path
+                                    d3.json("/test/socfb-MIT.mtx_23_circle.json", function(data){
+                                        svg2.select("#mydata")
+                                            .text("i just got clicked on");
+                                    });
+                                 /////////////////////////////////////////////////////
+                               });
 
   circle = circle.filter(function(d) {return (d.size >= 0) && (d.name != "")});
 //#      .style("stroke-dasharray", "5,5", "important");
 //#      .style("stroke", "#000", "important")
 //#      .style("stroke-width", 1, "important");
   
-  var text = svg1.selectAll("text")
-      .data(nodes)
-    .enter().append("text")
-      .attr("class", "label")
-      .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
-      .style("display", function(d) { return (d.parent === root && d.size >= 0) ? "inline" : "none"; })
-      .text( function(d) { return d.name; });
-
-  text = text.filter(function(d) {return (d.size >= 0)});
+//  var text = svg1.selectAll("text")
+//      .data(nodes)
+//    .enter().append("text")
+//      .attr("class", "label")
+//      .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
+//      .style("display", function(d) { return (d.parent === root && d.size >= 0) ? "inline" : "none"; })
+//      .text( function(d) { return d.name; });
+//
+//  text = text.filter(function(d) {return (d.size >= 0)});
   
   var node = svg1.selectAll("circle,text");
 
@@ -131,12 +158,12 @@ d3.json("socfb-MIT.mtx_23_circle.json", function(error, root) {
         });
   
 
-    transition.selectAll("text")
-      .filter(function(d) { return (d.size >= 0 && d.fl == "socfb-MIT.mtx_23_circle.json" &&
-      (d.parent === focus || (d === focus && d.children == null) || this.style.display === "inline")); })
-        .style("fill-opacity", function(d) { return (d.parent === focus || (d === focus && d.children == null))? 1 : 0; })
-        .each("start", function(d) { if (d.parent === focus || (d === focus && d.children == null)) this.style.display = "inline"; })
-        .each("end", function(d) { if (d.parent !== focus && (d !== focus && d.children == null)) this.style.display = "none"; });
+//    transition.selectAll("text")
+//      .filter(function(d) { return (d.size >= 0 && d.fl == "socfb-MIT.mtx_23_circle.json" &&
+//      (d.parent === focus || (d === focus && d.children == null) || this.style.display === "inline")); })
+//        .style("fill-opacity", function(d) { return (d.parent === focus || (d === focus && d.children == null))? 1 : 0; })
+//        .each("start", function(d) { if (d.parent === focus || (d === focus && d.children == null)) this.style.display = "inline"; })
+//        .each("end", function(d) { if (d.parent !== focus && (d !== focus && d.children == null)) this.style.display = "none"; });
   }
   function zoomTo(v) {
     var k = diameter / v[2]; view = v;
