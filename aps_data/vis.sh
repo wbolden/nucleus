@@ -115,6 +115,77 @@ function parsename(str) {
   split[0] = split[0].concat(\" \");
   return split[0].concat(split[1])                     
 }
+//Hashtable to convert from journal names to folder names quickly
+var folderhash = {};
+folderhash[\"PhysRev\"] = \"PR\";
+folderhash[\"PhysRevA\"] = \"PRA\";
+folderhash[\"PhysRevB\"] = \"PRB\";
+folderhash[\"PhysRevC\"] = \"PRC\";
+folderhash[\"PhysRevD\"] = \"PRD\";
+folderhash[\"PhysRevE\"] = \"PRE\";
+folderhash[\"PhysRevSeriesI\"] =  \"PRI\";
+folderhash[\"PhysRevLett\"] = \"PRL\";
+folderhash[\"PhysRevSTAB\"] = \"PRSTAB\";
+folderhash[\"PhysRevSTPER\"] = \"PRSTPER\";
+folderhash[\"PhysRevX\"] = \"PRX\";
+folderhash[\"PhysRevA\"] = \"PRA\";
+folderhash[\"RevModPhys\"] = \"RMP\";
+
+//Maps a vertex to a paper doi
+//index with a vertex to get the path to that file in the metadata folder
+var mapfile = [];
+
+//Maps a node index to a list of vertices, where each vertex represents a paper
+var fakedb = {};
+
+//Makes a doi into a filepath to load from the metadata file
+//eg 10.1103/PhysRev.1.1 -> PA/1/PhysRev.1.1
+//Stores result in mapfile by index
+d3.tsv(\"map.txt\", function(data) {
+  for(var i = 0; i < data.length; i++){
+    var doi = data[i].doi.split(\"/\")[1];
+    var subfolders = doi.split(\".\");
+    subfolders[0] = folderhash[subfolders[0]];
+    subfolders[2] = doi;
+
+    mapfile[data[i].index] = subfolders.join(\"/\").concat(\".json\");
+
+  }
+  console.log(\"loaded map\");
+});
+
+// Array Remove - By John Resig (MIT Licensed)
+Array.prototype.remove = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
+};
+
+//Stores the vertices corresponding to each node in the fakedb variable
+d3.tsv(\"aps-citations_cleaned.mtx_23_IMPR_fakedb\", function(data) {
+  for(var i = 0; i <data.length; i++){
+    var fields = data[i].info.split(\" \");
+    index = fields[0];
+    fields.remove(-1); //Remove last element, always a -1
+    fields.remove(0, 5); //Remove first 5 elements to be left with vertices only
+    for(var v = 0; v < fields.length; v++){
+      fields[v] = parseInt(fields[v]);
+    }
+    fakedb[index] = fields;
+  }
+  console.log(\"loaded fakedb\");
+});
+
+
+//Quick function to verify that fakedb and mapfile work correctly (they do)
+function loadpapers(nodeindex){
+  //Gets paper ids for all papers in nodeindex
+  var vertices = fakedb[nodeindex];
+  for(var i = 0; i < vertices.length; i++){
+    //Gets filepath to metadata from paperid
+    console.log(mapfile[vertices[i]]);
+  }
+}
 
 d3.json(\""$arg"\", function(error, root) {
   if (error) throw error;
@@ -128,7 +199,9 @@ d3.json(\""$arg"\", function(error, root) {
     .enter().append(\"circle\")      
       .attr(\"class\", function(d) { return d.parent ? d.children ? \"node\" : \"node node--leaf\" : \"node node--root\"; })
       .style(\"fill\", function(d) { return color(d.color); })      
-      .on(\"click\", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(),
+      .on(\"click\", function(d) { loadpapers(d.index);
+
+      								if (focus !== d) zoom(d), d3.event.stopPropagation(),
                                         svg1.select(\"#subgraph_id\")
                                             .text(parsename(d.name));
                                    else
