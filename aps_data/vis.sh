@@ -60,9 +60,12 @@ done
 
 echo "
 
-    <div id=\"paperinfo\" style=\"width: 500px; float: left; background-color: white;\">
+    <div id=\"info\" style=\"width: 500px;float: left; background-color: white;\">
     <center><b>Paper Information:</b></center><br>
+    <div id=\"classifcation\"></div>
     </div>
+
+    <div id=\"paperinfo\" style=\"width: 500px; height:800px;float: left; background-color: white; overflow-y:scroll;\"></div>
 
 
 </div>  
@@ -188,23 +191,70 @@ d3.tsv(\"aps-citations_cleaned.mtx_23_IMPR_fakedb\", function(data) {
 });
 
 
+function removeCommonWords(dict){
+  var words =  ['and','that','but','or','as','if','when','than',
+                'because','while','where','after','so','though',
+                'since','until','whether','before','although',
+                'nor','like','once','unless','now','except','at',
+                'the','of','on','an','in','with','a','for','from'];
+
+  for(var i = 0; i < words.length; i++){
+    delete dict[words[i]];
+  }
+  return dict;
+}
+
+function stripHTML(string){
+  var div = document.createElement(\"tempdiv\");
+  div.innerHTML = string;
+  return div.innerText;
+}
+
+
 //Loads all the authors associated with papers in a given node and displays them
 function loadpapers(nodeindex){
+  //Two hash tables holding info about the most common words and authors
+  word_count = {};
+  author_count = {};
+
+  var timeout;
+
+
   //Gets paper ids for all papers in nodeindex
   var vertices = fakedb[nodeindex];
   for(var i = 0; i < vertices.length; i++){
     //Gets filepath to metadata from paperid
     var filepath = \"aps-dataset-metadata-2013/\".concat(mapfile[vertices[i]]);
-    console.log(filepath);
+    //console.log(filepath);
     d3.json(filepath, function(error, data) {
       var title = data.title.value;
+
+      var title_words = stripHTML(title).split(\" \");
+      for(var n = 0; n < title_words.length; n++){
+        var word = stripHTML(title_words[n]);
+        if(word_count[word] == undefined){
+          word_count[word] = 1;
+        } else {
+          word_count[word]++;
+        }
+      }
+
+
       title = \"<b>Title: </b>\".concat(title).concat(\"<br>\");
 
 
       var authors = \"<b>Authors: </b>\";
       for(var n = 0; n < data.authors.length; n++) {
+
+        var author = stripHTML(data.authors[n].name);
+        if(author_count[author] == undefined){
+          author_count[author] = 1;
+        } else {
+          author_count[author]++;
+        }
+
         authors = authors.concat(data.authors[n].name);
-        if(i != data.authors.length-1){
+        if(n < data.authors.length-1){
           authors = authors.concat(\", \");
         }
       }
@@ -212,6 +262,44 @@ function loadpapers(nodeindex){
 
       var paperinfo = title.concat(authors).concat(\"<br>\");
       \$('paperinfo').innerHTML += paperinfo;
+
+      clearTimeout(timeout);
+      timeout = setTimeout(function(){
+        //console.log(word_count, author_count);
+
+        word_count = removeCommonWords(word_count);
+
+        var words_array = [];
+        for(var word in word_count){
+          words_array.push([word, word_count[word]]);
+        }
+
+        var authors_array = [];
+        for(var author in author_count){
+          authors_array.push([author, author_count[author]]);
+        }
+
+        words_array = words_array.sort(function(a,b){return b[1]-a[1];});
+        authors_array = authors_array.sort(function(a,b){return b[1]-a[1];});
+
+        var words = \"<b>Common words:</b> \";
+        var authors = \"<b>Common authors:</b> \";
+        for(var n = 0; n < 7; n++){
+          words += words_array[n][0].concat(\" (\").concat(words_array[n][1]).concat(\")\");
+          authors += authors_array[n][0].concat(\" (\").concat(authors_array[n][1]).concat(\")\");
+
+          if(n < 7-1) {
+            words = words.concat(\", \");
+            authors = authors.concat(\", \");
+          }
+        }
+
+        \$(\"classifcation\").innerHTML = words.concat(\"<br>\").concat(authors).concat(\"<br><br>\");
+
+        console.log(words_array, authors_array);
+
+      }, 100);
+      
     });
   }
 }
@@ -229,7 +317,8 @@ d3.json(\""$arg"\", function(error, root) {
       .attr(\"class\", function(d) { return d.parent ? d.children ? \"node\" : \"node node--leaf\" : \"node node--root\"; })
       .style(\"fill\", function(d) { return color(d.color); })      
       .on(\"click\", function(d) {                       
-                      \$('paperinfo').innerHTML =\"<center><b>Paper Information:</b></center><br>\"; 
+                      \$('paperinfo').innerHTML =\"\"; 
+                      \$(\"classifcation\").innerHTML =\"\";
                       loadpapers(d.index);
 
       								if (focus !== d) zoom(d), d3.event.stopPropagation(),
