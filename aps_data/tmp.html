@@ -35,7 +35,7 @@
     <div class="container" style="width: 100%;">
 
     <div id="dv_1" style="width: -100px; float: left;">
-        <center>aps-citations_cleaned.mtx_23_IMPR_circle.json</center>
+        <center>aps-citiations_cleaned.mtx_23_IMPR_circle.json</center>
     </div>
 
 
@@ -68,16 +68,12 @@ var pack = d3.layout.pack()
     .size([diameter - margin, diameter - margin])
     .value(function(d) { return d.size; })
 
-/*var zoom2 = d3.behavior.zoom()
-    .scaleExtent([1, 10])
-    .on("zoom", zoomed);*/
-
 var svg1 = d3.select("#dv_1").append("svg")
     .attr("width", diameter)
     .attr("height", diameter)
     .append("g")
     .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
-    /*.call(zoom2);*/
+
 
 function filter(data, size){
   if(data.children == undefined) return;
@@ -277,7 +273,7 @@ function loadpapers(nodeindex){
 
 d3.json("aps-citations_cleaned.mtx_23_IMPR_circle.json", function(error, root) {
   if (error) throw error;
-  filter(root, 20);
+  filter(root, 10);
   var focus = root,
       nodes = pack.nodes(root),
       view;
@@ -292,21 +288,21 @@ d3.json("aps-citations_cleaned.mtx_23_IMPR_circle.json", function(error, root) {
                       $("classifcation").innerHTML ="";
                       loadpapers(d.index);
 
-                                   if (focus !== d) zoom(d), d3.event.stopPropagation(),
+      								if (focus !== d) zoom(d), d3.event.stopPropagation(),
                                         svg1.select("#subgraph_id")
                                             .text(parsename(d.name));
                                    else
                                         svg1.select("#subgraph_id")
-                                            .text(parsename(root.name)); 
-                                
+                                            .text(parsename(root.name));
+                                    
       })
       .on("mouseover", function(d) {svg1.select("#subgraph_id").text(parsename(d.name))});
 
-    var zoom2 = d3.behavior.zoom()
-            .scaleExtent([1, 10])
-            .on("zoom", zoomed);
-    
-    svg1.call(zoom2);
+  var zoom2 = d3.behavior.zoom()
+        .scaleExtent([1, 100])
+        .on("zoom", zoomed);
+
+  svg1.call(zoom2);  
 
   svg1.append("text")
     .style("font-size", "30px")
@@ -341,8 +337,8 @@ d3.json("aps-citations_cleaned.mtx_23_IMPR_circle.json", function(error, root) {
   zoomTo([root.x, root.y, root.r * 2 + margin]);
 
   function zoom(d) {
-
     var focus0 = focus; focus = d;
+
 
     circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_23_IMPR_circle.json" && d.parent === focus && focus !== root); })
 //#    .style("stroke-dasharray", "5,5");
@@ -360,69 +356,63 @@ d3.json("aps-citations_cleaned.mtx_23_IMPR_circle.json", function(error, root) {
     .style("stroke", "#000")
     .style("stroke-width", 0.5)
     .style("stroke-dasharray", "none");
+    
+
 
     var transition = d3.transition()
         .duration(d3.event.altKey ? 7500 : 750)
         .tween("zoom", function(d) {
           var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
-          console.log(focus.x, focus.y, focus.r * 2 + margin)
           return function(t) { zoomTo(i(t)); };
         });
+  
 	/*
     transition.selectAll("text")
-      .filter(function(d) { return (d.size >= 0 && d.fl == "aps-citations_cleaned.mtx_23_IMPR_circle.json" &&
+      .filter(function(d) { return (d.size >= 0 && d.fl == "aps-citiations_cleaned.mtx_23_IMPR_circle.json" &&
       (d.parent === focus || (d === focus && d.children == null) || this.style.display === "inline")); })
         .style("fill-opacity", function(d) { return (d.parent === focus || (d === focus && d.children == null))? 1 : 0; })
         .each("start", function(d) { if (d.parent === focus || (d === focus && d.children == null)) this.style.display = "inline"; })
         .each("end", function(d) { if (d.parent !== focus && (d !== focus && d.children == null)) this.style.display = "none"; });
      */
-
   }
-    
+
+  var position;
   function zoomTo(v) {
-      
-    console.log("in zoomTo");
     var k = diameter / v[2]; view = v;
     node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
     circle.attr("r", function(d) { return d.r * k; });
-    //scaleMultiplier = 980 / (focus.r*2 + margin);
-    //console.log("scale factor in zoomTo: " + scaleMultiplier);
-    zoom2.scale(980 / (focus.r*2 + margin));
-    console.log(zoom2.scale());
+    zoom2.scale(980 / (focus.r*2 + margin)); 
+    position = zoom2.translate();
+    zoom2.translate([0,0]);
+  }
+
+  function zoomTo2(v) {
+        
+    var k = diameter / v[2]; view = v;
+    node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
+    circle.attr("r", function(d) { return d.r * k; });
+
   }
     
-    function zoomTo2(v) {
-
-        console.log("in zoomTo");
-        var k = diameter / v[2]; view = v;
-        node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
-        circle.attr("r", function(d) { return d.r * k; });
-
-    }
-    
-    function zoomed() {
-    
-        console.log("in Zoomed");
+  function zoomed() {
      
-        var scaleMultiplier = d3.event.scale;
-        var panVector = d3.event.translate;
-        var panX = panVector[0];
-        var panY = panVector[1];
+    var s = d3.event.scale;
+    var panVector = d3.event.translate;
+    var panX = panVector[0];
+    var panY = panVector[1];
 
-        console.log("x and y pan: " + panX + " " + panY);
-        console.log("Scale factor: " + scaleMultiplier);
-        
-        d3.transition()
+    x = focus.x - (panX - position[0])/s;
+    y = focus.y - (panY - position[1])/s;
+    r = diameter/s;
+    
+    d3.transition()
         .duration(0)
-        .tween("zoom", function(d) {
-          var i = d3.interpolateZoom(view, [focus.x - panX/2, focus.y - panY/2, diameter/scaleMultiplier]);
-          return function(t) { zoomTo2(i(t)); };
-        });
-        
-    };
-    
+        .tween("zoom", function() {
+            var i = d3.interpolateZoom(view, [x, y, r]);
+            return function(t) { zoomTo2(i(t)); };
+        });     
+  };
 });
-    
 d3.select(self.frameElement).style("height", diameter + "px");
 
 </script>

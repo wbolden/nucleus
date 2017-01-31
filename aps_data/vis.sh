@@ -330,7 +330,13 @@ d3.json(\""$arg"\", function(error, root) {
                                     
       })
       .on(\"mouseover\", function(d) {svg1.select(\"#subgraph_id\").text(parsename(d.name))});
-      
+
+  var zoom2 = d3.behavior.zoom()
+        .scaleExtent([1, 100])
+        .on(\"zoom\", zoomed);
+
+  svg1.call(zoom2);  
+
   svg1.append(\"text\")
     .style(\"font-size\", \"30px\")
     .style(\"fill\", \"white\")
@@ -402,11 +408,43 @@ d3.json(\""$arg"\", function(error, root) {
         .each(\"end\", function(d) { if (d.parent !== focus && (d !== focus && d.children == null)) this.style.display = \"none\"; });
      */
   }
+
+  var position;
   function zoomTo(v) {
     var k = diameter / v[2]; view = v;
     node.attr(\"transform\", function(d) { return \"translate(\" + (d.x - v[0]) * k + \",\" + (d.y - v[1]) * k + \")\"; });
     circle.attr(\"r\", function(d) { return d.r * k; });
+    zoom2.scale(980 / (focus.r*2 + margin)); 
+    position = zoom2.translate();
+    zoom2.translate([0,0]);
   }
+
+  function zoomTo2(v) {
+        
+    var k = diameter / v[2]; view = v;
+    node.attr(\"transform\", function(d) { return \"translate(\" + (d.x - v[0]) * k + \",\" + (d.y - v[1]) * k + \")\"; });
+    circle.attr(\"r\", function(d) { return d.r * k; });
+
+  }
+    
+  function zoomed() {
+     
+    var s = d3.event.scale;
+    var panVector = d3.event.translate;
+    var panX = panVector[0];
+    var panY = panVector[1];
+
+    x = focus.x - (panX - position[0])/s;
+    y = focus.y - (panY - position[1])/s;
+    r = diameter/s;
+    
+    d3.transition()
+        .duration(0)
+        .tween(\"zoom\", function() {
+            var i = d3.interpolateZoom(view, [x, y, r]);
+            return function(t) { zoomTo2(i(t)); };
+        });     
+  };
 });" >>$tmp
 i=$((i+1));
 done
