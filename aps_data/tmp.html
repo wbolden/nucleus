@@ -40,7 +40,7 @@
 
 
     <div id="info" style="width: 500px;float: left; background-color: white;">
-    <center><b>Paper Information:</b></center><br>
+    <center><b>Information:</b></center><br>
     <div id="classifcation"></div>
     </div>
 
@@ -50,7 +50,7 @@
 </div>  
 </body>
 
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="d3.v3.js"></script>
 <script>
 
 var $ = function( id ) { return document.getElementById( id ); };
@@ -62,6 +62,8 @@ var color = d3.scale.linear()
     .domain([0, 1, 2, 3, 4])
     .range(["rgb(0,0,255)", "rgb(0,255,255)", "rgb(0,255,0)", "rgb(255,255,0)", "rgb(255,0,0)"])
     .interpolate(d3.interpolate);
+
+
 
 var pack = d3.layout.pack()
     .padding(2)
@@ -116,6 +118,9 @@ folderhash["RevModPhys"] = "RMP";
 //index with a vertex to get the path to that file in the metadata folder
 var mapfile = [];
 
+//Like mapfile, but just dois
+var doifile = [];
+
 //Maps a node index to a list of vertices, where each vertex represents a paper
 var fakedb = {};
 
@@ -130,6 +135,7 @@ d3.tsv("map.txt", function(data) {
     subfolders[2] = doi;
 
     mapfile[data[i].index] = subfolders.join("/").concat(".json");
+    doifile[data[i].index] = data[0].doi;
 
   }
   console.log("loaded map");
@@ -191,7 +197,11 @@ function loadpapers(nodeindex){
   var vertices = fakedb[nodeindex];
   for(var i = 0; i < vertices.length; i++){
     //Gets filepath to metadata from paperid
+
     var filepath = "aps-dataset-metadata-2013/".concat(mapfile[vertices[i]]);
+    //var filepath = "http://journals.aps.org/pr/export/".concat(doifile[vertices[i]]);
+    console.log(filepath)
+
     //console.log(filepath);
     d3.json(filepath, function(error, data) {
       var title = data.title.value;
@@ -273,7 +283,7 @@ function loadpapers(nodeindex){
 
 d3.json("aps-citations_cleaned.mtx_23_IMPR_circle.json", function(error, root) {
   if (error) throw error;
-  filter(root, 10);
+  filter(root, 20);
   var focus = root,
       nodes = pack.nodes(root),
       view;
@@ -354,7 +364,7 @@ d3.json("aps-citations_cleaned.mtx_23_IMPR_circle.json", function(error, root) {
 
     circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_23_IMPR_circle.json" && (d.parent !== focus && d !== focus)); })
     .style("stroke", "#000")
-    .style("stroke-width", 0.5)
+    .style("stroke-width", 1.0)
     .style("stroke-dasharray", "none");
     
 
