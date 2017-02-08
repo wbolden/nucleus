@@ -50,8 +50,9 @@
 </body>
 
 <script src="d3.v3.js"></script>
-
+<script src="Parser.js"></script>
 <script>
+
 var $ = function( id ) { return document.getElementById( id ); };
 var margin = 20,
     diameter = 980;
@@ -90,30 +91,31 @@ function parsename(str) {
 }
 //Hashtable to convert from journal names to folder names quickly
 var folderhash = {};
-folderhash["PhysRev"] = "PR";
-folderhash["PhysRevA"] = "PRA";
-folderhash["PhysRevB"] = "PRB";
-folderhash["PhysRevC"] = "PRC";
-folderhash["PhysRevD"] = "PRD";
-folderhash["PhysRevE"] = "PRE";
-folderhash["PhysRevSeriesI"] =  "PRI";
-folderhash["PhysRevLett"] = "PRL";
-folderhash["PhysRevSTAB"] = "PRSTAB";
-folderhash["PhysRevSTPER"] = "PRSTPER";
-folderhash["PhysRevX"] = "PRX";
-folderhash["PhysRevA"] = "PRA";
-folderhash["RevModPhys"] = "RMP";
+folderhash["PhysRev"] = "pr";
+folderhash["PhysRevA"] = "pra";
+folderhash["PhysRevB"] = "prb";
+folderhash["PhysRevC"] = "prc";
+folderhash["PhysRevD"] = "prd";
+folderhash["PhysRevE"] = "pre";
+folderhash["PhysRevSeriesI"] =  "pri";
+folderhash["PhysRevLett"] = "prl";
+folderhash["PhysRevSTAB"] = "prstab";
+folderhash["PhysRevSTPER"] = "prstper";
+folderhash["PhysRevX"] = "prx";
+folderhash["PhysRevA"] = "pra";
+folderhash["RevModPhys"] = "rmp";
 //Maps a vertex to a paper doi
 //index with a vertex to get the path to that file in the metadata folder
 var mapfile = [];
 //Like mapfile, but just dois
-var doifile = [];
+//var doifile = [];
 //Maps a node index to a list of vertices, where each vertex represents a paper
 var fakedb = {};
 //Makes a doi into a filepath to load from the metadata file
 //eg 10.1103/PhysRev.1.1 -> PA/1/PhysRev.1.1
 //Stores result in mapfile by index
-d3.tsv("map.txt", function(data) {
+    
+/*d3.tsv("map.txt", function(data) {
   for(var i = 0; i < data.length; i++){
     var doi = data[i].doi.split("/")[1];
     var subfolders = doi.split(".");
@@ -121,6 +123,20 @@ d3.tsv("map.txt", function(data) {
     subfolders[2] = doi;
     mapfile[data[i].index] = subfolders.join("/").concat(".json");
     doifile[data[i].index] = data[0].doi;
+  }
+  console.log("loaded map");
+}); */  
+    
+d3.tsv("map.txt", function(data) {
+  for(var i = 0; i < data.length; i++){
+    var prefix = "http://journals.aps.org/";
+    var suffix = data[i].doi;
+    var doi = data[i].doi.split("/")[1];
+    var subfolders = doi.split(".");
+    subfolders[0] = folderhash[subfolders[0]];
+    subfolders[1] = "export";
+    subfolders[2] = suffix;
+    mapfile[data[i].index] = prefix.concat(subfolders.join("/"));
   }
   console.log("loaded map");
 });
@@ -160,7 +176,7 @@ function stripHTML(string){
   div.innerHTML = string;
   return div.innerText;
 }
-//Loads all the authors associated with papers in a given node and displays them
+/*//Loads all the authors associated with papers in a given node and displays them
 function loadpapers(nodeindex){
   //Two hash tables holding info about the most common words and authors
   word_count = {};
@@ -196,6 +212,93 @@ function loadpapers(nodeindex){
         }
         authors = authors.concat(data.authors[n].name);
         if(n < data.authors.length-1){
+          authors = authors.concat(", ");
+        }
+      }
+      authors = authors.concat("<br>")
+      var paperinfo = title.concat(authors).concat("<br>");
+      $('paperinfo').innerHTML += paperinfo;
+      clearTimeout(timeout);
+      timeout = setTimeout(function(){
+        //console.log(word_count, author_count);
+        word_count = removeCommonWords(word_count);
+        var words_array = [];
+        for(var word in word_count){
+          words_array.push([word, word_count[word]]);
+        }
+        var authors_array = [];
+        for(var author in author_count){
+          authors_array.push([author, author_count[author]]);
+        }
+        words_array = words_array.sort(function(a,b){return b[1]-a[1];});
+        authors_array = authors_array.sort(function(a,b){return b[1]-a[1];});
+        var words = "<b>Common words:</b> ";
+        var authors = "<b>Common authors:</b> ";
+        for(var n = 0; n < 7; n++){
+          words += words_array[n][0].concat(" (").concat(words_array[n][1]).concat(")");
+          authors += authors_array[n][0].concat(" (").concat(authors_array[n][1]).concat(")");
+          if(n < 7-1) {
+            words = words.concat(", ");
+            authors = authors.concat(", ");
+          }
+        }
+        $("classifcation").innerHTML = words.concat("<br>").concat(authors).concat("<br><br>");
+        console.log(words_array, authors_array);
+      }, 100);
+      
+    });
+  }
+}*/
+    
+function loadpapers(nodeindex){
+  //Two hash tables holding info about the most common words and authors
+  word_count = {};
+  author_count = {};
+  var timeout;
+    
+  //Gets paper ids for all papers in nodeindex
+  var vertices = fakedb[nodeindex];
+    
+  for(var i = 0; i < vertices.length; i++){
+    //Gets filepath to metadata from paperid
+    d3.html(mapfile[vertices[i]], function(error, text) {   
+        
+      //Parse Data from Bibtex to json
+      if (error) throw error;
+      var string = text.textContent; //parse document-fragment as a string
+      var file = BibtexParser(string); //convert string to json
+      data = file.entries[0].Fields;
+        
+      //Title Info
+      var title = data.title;
+      var title_words = stripHTML(title).split(" ");
+      for(var n = 0; n < title_words.length; n++){
+        var word = stripHTML(title_words[n]);
+        if(word_count[word] == undefined){
+          word_count[word] = 1;
+        } else {
+          word_count[word]++;
+        }
+      }
+      title = "<b>Title: </b>".concat(title).concat("<br>");
+        
+      //Authors Info
+      var authors = "<b>Authors: </b>";
+      var authors_list = data.author.split(" and ");
+      for(i = 0; i<authors_list.length; i++){
+        authors_list[i] = authors_list[i].split(", ");
+        authors_list[i].reverse();
+        authors_list[i] = authors_list[i][0].concat(" ").concat(authors_list[i][1]);
+      }
+      for(var n = 0; n < authors_list.length; n++) {
+        var author = stripHTML(authors_list[n]);
+        if(author_count[author] == undefined){
+          author_count[author] = 1;
+        } else {
+          author_count[author]++;
+        }
+        authors = authors.concat(authors_list[n]);
+        if(n < authors_list.length-1){
           authors = authors.concat(", ");
         }
       }
