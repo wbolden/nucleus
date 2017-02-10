@@ -101,7 +101,7 @@
 
 var $ = function( id ) { return document.getElementById( id ); };
 var margin = 20,
-    diameter = 980;
+    diameter = screen.height - 170;
 var color = d3.scale.linear()
     .domain([0, 1, 2, 3, 4])
     .range(["rgb(0,0,255)", "rgb(0,255,255)", "rgb(0,255,0)", "rgb(255,255,0)", "rgb(255,0,0)"])
@@ -111,7 +111,7 @@ var pack = d3.layout.pack()
     .size([diameter - margin, diameter - margin])
     .value(function(d) { return d.size; })
 var svg1 = d3.select("#dv_1").append("svg")
-    .attr("width", diameter)
+    .attr("width", screen.width - 170)
     .attr("height", diameter)
     .append("g")
     .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
