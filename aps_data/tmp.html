@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<title>aps-citiations_cleaned.mtx_23_IMPR_circle.json</title>
 <style>
 .node {
   cursor: pointer;
@@ -27,24 +28,70 @@
   stroke: #fff;
   shape-rendering: crispEdges;
 }
+* {
+    box-sizing: border-box;
+}
+.row::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+[class*="col-"] {
+    float: left;
+    padding: 15px;
+}
+.col-1 {width: 8.33%;}
+.col-2 {width: 16.66%;}
+.col-3 {width: 25%;}
+.col-4 {width: 33.33%;}
+.col-5 {width: 41.66%;}
+.col-6 {width: 50%;}
+.col-7 {width: 58.33%;}
+.col-8 {width: 66.66%;}
+.col-9 {width: 75%;}
+.col-10 {width: 83.33%;}
+.col-11 {width: 91.66%;}
+.col-12 {width: 100%;}
 </style>
 <body>
     <div class="container" style="width: 100%;">
-        <center>aps-citiations_cleaned.mtx_23_IMPR_circle.json</center>
-        <div style="float: left;">
+        <div class="row">
+            <div class="col-1">
+                <input id="brush_toggle" type="button" value="Brush Off" onclick="toggleBrush()" />
+            </div>
+            <div class="col-1">
+                <input id="submit_size" type="button" value="Update Visual">
+            </div>
+            <div class="col-2">
+                Size: <input id="size_limiter" type="text" name="size_change" value=""><br> 
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div id="dv_1"></div>  
+            </div>
+            <div class="col-4">
+                <div id="info" style="background-color: white;">
+                    <center><b>Paper Information:</b></center><br>
+                    <div id="classifcation"></div>
+                    <div id="paperinfo" style="width: 500px; height:800px;float: left; background-color: white; overflow-y:scroll;"></div>
+                </div>
+            </div>
+        </div>
+        <!--<div style="float: left;">
             <input id="brush_toggle" type="button" value="Brush Off" onclick="toggleBrush()" />
             Size: <input id="size_limiter" type="text" name="size_change" value=""><br>    
         </div>
         <div style="float: left;">
-            <input id="submit_size" type="button" value="Update Visual">
-        </div>              
+            <input id="submit_size" type="button" value="Update Visual">  
+        </div> 
         <div id="dv_1" style="width: -100px; float: left;">
-            <div id="info" style="width: 500px;float: right; background-color: white;">
+        </div>                  
+        <div id="info" style="width: 500px;float: left; background-color: white;">
             <center><b>Paper Information:</b></center><br>
             <div id="classifcation"></div>
             <div id="paperinfo" style="width: 500px; height:800px;float: left; background-color: white; overflow-y:scroll;"></div>
-        </div>     
-        </div> 
+        </div>--> 
     </div>  
 </body>
 
