@@ -417,21 +417,25 @@ function redraw(size){
           view;
       var circle = svg1.selectAll("circle")
           .data(nodes)      
-        .enter().append("circle")      
+          .enter().append("circle")      
           .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
           .style("fill", function(d) { return color(d.color); })      
-          .on("click", function(d) {                       
-                          $('paperinfo').innerHTML =""; 
-                          $("classifcation").innerHTML ="";
-                          loadpapers(d.index);
-                                        if (focus !== d) zoom(d), d3.event.stopPropagation(),
-                                            svg1.select("#subgraph_id")
-                                                .text(parsename(d.name));
-                                       else
-                                            zoom(root);
-                                            svg1.select("#subgraph_id")
-                                                .text(parsename(root.name));
+          .on("click", function(d) {  
+                if (d3.event.defaultPrevented != true){
+                    $('paperinfo').innerHTML =""; 
+                    $("classifcation").innerHTML ="";
+                    loadpapers(d.index);
 
+                    if (focus !== d) {
+                        zoom(d), d3.event.stopPropagation(),
+                        svg1.select("#subgraph_id")
+                            .text(parsename(d.name));
+                    }else{
+                        zoom(root);
+                        svg1.select("#subgraph_id")
+                            .text(parsename(root.name));
+                    }
+                }
           })
           .on("mouseover", function(d) {svg1.select("#subgraph_id").text(parsename(d.name))});
       var zoom2 = d3.behavior.zoom()
