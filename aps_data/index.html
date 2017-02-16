@@ -52,19 +52,32 @@
 .col-10 {width: 83.33%;}
 .col-11 {width: 91.66%;}
 .col-12 {width: 100%;}
+#get_input{
+    width: 100px;
+}
 </style>
 <body>
     <div class="container" style="width: 100%;">
         <div class="row">
-            <div class="col-1">
+            <!--<div class="col-1">
                 <input id="brush_toggle" type="button" value="Brush Off" onclick="toggleBrush()" />
-            </div>
+            </div>-->
             <div class="col-1">
                 <input id="submit_size" type="button" value="Update Visual">
             </div>
             <div class="col-2">
                 Size: <input id="size_limiter" type="text" name="size_change" value=""><br> 
             </div>
+            <div class="col-1">
+                <input type="checkbox" id="author">Author<input type="checkbox" id="paper">Paper<input type="checkbox" id="word">Word
+            </div>
+            <div class="col-1">
+                <input id="find_data" type="button" name="Find" value="Search"><br> 
+            </div>
+            <div class="col-2">
+                Input: <input id="get_input" type="text" name="paper_name" value=""><br> 
+            </div>
+            
         </div>
         <div class="row">
             <div class="col-8">
@@ -78,26 +91,13 @@
                 </div>
             </div>
         </div>
-        <!--<div style="float: left;">
-            <input id="brush_toggle" type="button" value="Brush Off" onclick="toggleBrush()" />
-            Size: <input id="size_limiter" type="text" name="size_change" value=""><br>    
-        </div>
-        <div style="float: left;">
-            <input id="submit_size" type="button" value="Update Visual">  
-        </div> 
-        <div id="dv_1" style="width: -100px; float: left;">
-        </div>                  
-        <div id="info" style="width: 500px;float: left; background-color: white;">
-            <center><b>Paper Information:</b></center><br>
-            <div id="classifcation"></div>
-            <div id="paperinfo" style="width: 500px; height:800px;float: left; background-color: white; overflow-y:scroll;"></div>
-        </div>--> 
     </div>  
 </body>
 
 <script src="d3.v3.js"></script>
 <script src="Parser.js"></script>
 <script src="helper.js"></script>
+<script src="jquery-3.1.1.js"></script>
 <script src="paperinfo.js"></script>
 
 <script>
@@ -107,7 +107,14 @@ var margin = 20,
     diameter = screen.height - 170;
 var color = d3.scale.linear()
     .domain([0, 1, 2, 3, 4])
-    .range(["rgb(0,0,255)", "rgb(0,255,255)", "rgb(0,255,0)", "rgb(255,255,0)", "rgb(255,0,0)"])
+    //blue scheme
+/*    .range(["rgb(0,0,255)", "rgb(0,255,255)", "rgb(0,255,0)", "rgb(255,255,0)", "rgb(255,0,0)"])*/
+    //red scheme
+    .range(["#4eb3d3", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"])
+    .interpolate(d3.interpolate); 
+var grayColor = d3.scale.linear()
+    .domain([0, 1, 2, 3, 4])
+    .range(["#f0f0f0", "#d9d9d9", "#bdbdbd", "#969696", "#969696"])
     .interpolate(d3.interpolate);
 var pack = d3.layout.pack()
     .padding(2)
@@ -126,9 +133,6 @@ function filter(data, size){
   }
 }
 
-
-
-    
 var position;
 var saveScale = null;
 var saveTranslation = null;
@@ -141,7 +145,7 @@ function toggleBrush() {
 };
 
 d3.select("#submit_size").on("click", function() {
-    size = parseInt(document.getElementById("size_limiter").value);
+    var size = parseInt(document.getElementById("size_limiter").value);
     svg1.selectAll("circle")
         .remove();
     svg1.selectAll("text")
@@ -161,13 +165,23 @@ function redraw(size){
       filter(root, size);
       var focus = root,
           nodes = pack.nodes(root),
-          view;
+          view;      
       var circle = svg1.selectAll("circle")
           .data(nodes)      
           .enter().append("circle")      
           .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
-          .style("fill", function(d) { return color(d.color); })      
-          .on("click", function(d) {  
+          .attr("id",function(d) {
+              id = d.index;
+              id = "p".concat(String(id));
+              return id;
+          })
+          .style("fill", function(d) { return color(d.color); })    
+          .on("click", function(d) { 
+                svg1.select("#p".concat(String(d.index)))
+                    .style("fill", function(d) { 
+                        return color(d.color);
+                    });
+                console.log(d.index);
                 if (d3.event.defaultPrevented != true){
                     $('paperinfo').innerHTML =""; 
                     $("classifcation").innerHTML ="";
@@ -185,6 +199,55 @@ function redraw(size){
                 }
           })
           .on("mouseover", function(d) {svg1.select("#subgraph_id").text(parsename(d.name))});
+        
+      d3.select("#find_data").on("click", function() {
+        /*svg1.selectAll("circle")
+            .style("fill", function(d){
+              return grayColor(d.color);
+            });*/
+        //Just a test to see what the intersections look like
+        /*d3.text("IntersectionsComma.csv", function(error2,intersections){
+            if (error2) throw error2;
+            var dataInt = d3.csv.parseRows(intersections);
+            for (var i = 0; i<dataInt.length; i++){
+                for (var j = 1; j<dataInt[i].length; j++){
+                    svg1.select('#p'.concat(dataInt[i][j]))
+                        .style("fill", function(d){
+                              return color(d.color);
+                    });
+                }
+            }
+            
+        })*/
+        if (document.getElementById("paper").checked){
+            var title = document.getElementById("get_input").value;
+            target_circle = revfakedb[titlefile[title]];
+            for(var i = 0; i<target_circle.length; i++){
+                svg1.selectAll('#p'.concat(target_circle[i]))
+                    .style("stroke-width",4)
+                    .style("stroke","yellow");
+/*                    .style("fill", function(d){
+                      return color(d.color);
+                    });*/
+            }
+        }else if (document.getElementById("author").checked){
+            var author = document.getElementById("get_input").value;
+            for(var j = 0; j<authorfile[author].length; j++){
+                if(revfakedb[authorfile[author][j]] != undefined){
+                    target_circle = revfakedb[authorfile[author][j]];
+                    for(var k = 0; k<target_circle.length; k++){
+                        svg1.selectAll('#p'.concat(target_circle[k]))
+                            .style("stroke-width",4)
+                            .style("stroke","yellow");
+                            /*.style("fill", function(d){
+                              return color(d.color);
+                            });*/
+                    }
+                }
+            }
+        }
+      })
+      
       var zoom2 = d3.behavior.zoom()
             .scaleExtent([1, 100])
             .on("zoom", zoomed);
