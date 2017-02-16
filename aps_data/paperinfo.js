@@ -33,10 +33,14 @@ var doifile = [];
 //Maps a node index to a list of vertices, where each vertex represents a paper
 var fakedb = {};
 
+var titlefile = {};
+var authorfile = {};
+var revfakedb = {};
+
 //Makes a doi into a filepath to load from the metadata file
 //eg 10.1103/PhysRev.1.1 -> PA/1/PhysRev.1.1
 //Stores result in mapfile by index
-    
+
 d3.tsv("map.txt", function(data) {
   for(var i = 0; i < data.length; i++){
     var doi = data[i].doi.split("/")[1];
@@ -49,6 +53,20 @@ d3.tsv("map.txt", function(data) {
   console.log("loaded map");
 }); 
 
+d3.json("title_map.json", function(error, data){
+    for(var i = 0; i < data.length; i++){
+        titlefile[data[i].title] = data[i].paper_id; 
+    }
+    reverseFakedb();
+    console.log("loaded titles")
+})
+
+d3.json("author_map.json", function(error, data){
+    for(var i = 0; i < data.length; i++){
+        authorfile[data[i].author] = data[i].paper_ids; 
+    }
+    console.log("loaded authors")
+})
 /*
 d3.tsv("map.txt", function(data) {
   for(var i = 0; i < data.length; i++){
@@ -65,8 +83,6 @@ d3.tsv("map.txt", function(data) {
 });
 */
 
-
-
 //Stores the vertices corresponding to each node in the fakedb variable
 d3.tsv("aps-citations_cleaned.mtx_23_IMPR_fakedb", function(data) {
   for(var i = 0; i <data.length; i++){
@@ -79,7 +95,8 @@ d3.tsv("aps-citations_cleaned.mtx_23_IMPR_fakedb", function(data) {
     }
     fakedb[index] = fields;
   }
-  console.log("loaded fakedb");
+  console.log(fakedb)
+  console.log("loaded fakedb"); 
 });
 
 //Removes common words from the provided dictionary
@@ -128,7 +145,7 @@ function display_paper_stats(){
     }
   }
   $("classifcation").innerHTML = words.concat("<br>").concat(authors).concat("<br><br>");
-  console.log(words_array, authors_array);
+ //console.log(words_array, authors_array);
 }
 
 function get_paper_info_json(error, data) {
@@ -228,7 +245,7 @@ function loadpapers(nodeindex){
     } else {
       filepath = "http://journals.aps.org/pr/export/".concat(doifile[vertices[i]]);
     }
-    console.log(filepath)
+    //console.log(filepath)
     //console.log(filepath);
 
     if(!load_metadata_online){
@@ -236,13 +253,26 @@ function loadpapers(nodeindex){
     } else {
       d3.text(filepath, get_paper_info_bibtex);
     }
-
-
-
-
   }
 }
-    
+
+function reverseFakedb(){
+    for (var index in fakedb){
+        var slot = fakedb[index]
+        for (var i = 0; i < slot.length; i++){
+            if(revfakedb[slot[i]] == null){
+                revfakedb[slot[i]] = [index];
+            }else{
+                indicies = [];
+                for (var j = 0; j<revfakedb[slot[i]].length; j++){
+                    indicies.push(revfakedb[slot[i]][j]);
+                }
+                indicies.push(index);
+                revfakedb[slot[i]] = indicies;
+            }
+        }
+    }
+}
 /*
 function loadpapers(nodeindex){
   //Two hash tables holding info about the most common words and authors
