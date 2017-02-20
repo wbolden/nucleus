@@ -97,6 +97,7 @@
 <script src="d3.v3.js"></script>
 <script src="Parser.js"></script>
 <script src="helper.js"></script>
+<script src="jquery-3.1.1.js"></script>
 <script src="paperinfo.js"></script>
 
 <script>
@@ -124,6 +125,9 @@ var svg1 = d3.select("#dv_1").append("svg")
     .attr("height", diameter)
     .append("g")
     .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+svg1.append("text")
+    .attr("id","loading")
+    .text("Loading Data...");
 function filter(data, size){
   if(data.children == undefined) return;
   data.children = data.children.filter(function(a){return a.size>size;});
@@ -136,7 +140,7 @@ var position;
 var saveScale = null;
 var saveTranslation = null;
 var brush_on = false;
-var brushCounter = 0
+var brushCounter = 0;
 function toggleBrush() {
     brushCounter++;
     brush_on = brushCounter%2 == 0? false : true;
@@ -200,24 +204,10 @@ function redraw(size){
           .on("mouseover", function(d) {svg1.select("#subgraph_id").text(parsename(d.name))});
         
       d3.select("#find_data").on("click", function() {
-        /*svg1.selectAll("circle")
-            .style("fill", function(d){
-              return grayColor(d.color);
-            });*/
-        //Just a test to see what the intersections look like
-        /*d3.text("IntersectionsComma.csv", function(error2,intersections){
-            if (error2) throw error2;
-            var dataInt = d3.csv.parseRows(intersections);
-            for (var i = 0; i<dataInt.length; i++){
-                for (var j = 1; j<dataInt[i].length; j++){
-                    svg1.select('#p'.concat(dataInt[i][j]))
-                        .style("fill", function(d){
-                              return color(d.color);
-                    });
-                }
-            }
-            
-        })*/
+        svg1.selectAll("circle")
+            .style("stroke","black")
+            .style("stroke-width",1)
+        var target_circle = [];
         if (document.getElementById("paper").checked){
             var title = document.getElementById("get_input").value;
             target_circle = revfakedb[titlefile[title]];
@@ -244,6 +234,25 @@ function redraw(size){
                     }
                 }
             }
+        }else if (document.getElementById("word").checked){
+            var word = document.getElementById("get_input").value;
+            console.log(word);
+            for(var i = 0; i<keywords_loc[word].length; i++){
+                console.log(keywords_loc[word][i]);
+                if(revfakedb[keywords_loc[word][i]] != undefined){
+                    target_circle = revfakedb[keywords_loc[word][i]];
+                    console.log(target_circle);
+                    for(var j = 0; j<target_circle.length; j++){
+                        svg1.selectAll('#p'.concat(target_circle[j]))
+                            .style("stroke-width",4)
+                            .style("stroke","yellow");
+                            /*.style("fill", function(d){
+                              return color(d.color);
+                            });*/
+                    }
+                }
+            }
+            
         }
       })
       

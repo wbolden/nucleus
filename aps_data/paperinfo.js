@@ -36,6 +36,8 @@ var fakedb = {};
 var titlefile = {};
 var authorfile = {};
 var revfakedb = {};
+var keywords = {};
+var keywords_loc = {};
 
 //Makes a doi into a filepath to load from the metadata file
 //eg 10.1103/PhysRev.1.1 -> PA/1/PhysRev.1.1
@@ -58,15 +60,37 @@ d3.json("title_map.json", function(error, data){
         titlefile[data[i].title] = data[i].paper_id; 
     }
     reverseFakedb();
-    console.log("loaded titles")
-})
+    console.log("loaded revfakedb");
+    console.log("loaded titles");
+    for(var title in titlefile){
+        str = title.split(" ");
+        for(var j = 0; j<str.length; j++){
+            str = removePunc(str);
+            if(keywords[str[j]] == undefined){
+                keywords[str[j]] = 1;
+                keywords_loc[str[j]] = [];
+                keywords_loc[str[j]].push(titlefile[title]);
+            }else{
+                keywords[str[j]]++;
+                keywords_loc[str[j]].push(titlefile[title]);
+            }
+        }
+    }
+    console.log("loaded keywords");
+});
 
 d3.json("author_map.json", function(error, data){
     for(var i = 0; i < data.length; i++){
         authorfile[data[i].author] = data[i].paper_ids; 
     }
-    console.log("loaded authors")
-})
+    console.log("loaded authors");
+    svg1.select("#loading")
+        .remove();
+});
+
+/*d3.tsv("keywords_map.tsv", function(error, data){
+    console.log("loaded keywords")
+});*/
 /*
 d3.tsv("map.txt", function(data) {
   for(var i = 0; i < data.length; i++){
@@ -105,11 +129,23 @@ function removeCommonWords(dict){
                 'because','while','where','after','so','though',
                 'since','until','whether','before','although','to',
                 'nor','like','once','unless','now','except','at',
-                'the','of','on','an','in','with','a','for','from'];
+                'the','of','on','an','in','with','a','for','from',
+                'between','study','some','due','we','You','The',
+                'A','Their'];
   for(var i = 0; i < words.length; i++){
     delete dict[words[i]];
   }
   return dict;
+}
+
+function removePunc(str){
+    var punc = [',','"',':',"."]; 
+    for(var i = 0; i < punc.length; i++){
+        if(str.slice(-1) == punc[i]){
+            str = str.slice(0,-1);
+        }
+    }
+    return str;
 }
 
 //Strip html from text, useful when tags are used in json data
@@ -261,14 +297,10 @@ function reverseFakedb(){
         var slot = fakedb[index]
         for (var i = 0; i < slot.length; i++){
             if(revfakedb[slot[i]] == null){
+                revfakedb[slot[i]] = [];
                 revfakedb[slot[i]] = [index];
             }else{
-                indicies = [];
-                for (var j = 0; j<revfakedb[slot[i]].length; j++){
-                    indicies.push(revfakedb[slot[i]][j]);
-                }
-                indicies.push(index);
-                revfakedb[slot[i]] = indicies;
+                revfakedb[slot[i]].push(index);
             }
         }
     }
