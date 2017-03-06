@@ -62,7 +62,7 @@ d3.json("title_map.json", function(error, data){
     reverseFakedb();
     console.log("loaded revfakedb");
     console.log("loaded titles");
-    for(var title in titlefile){
+    /*for(var title in titlefile){
         str = title.split(" ");
         for(var j = 0; j<str.length; j++){
             str = removePunc(str);
@@ -76,6 +76,15 @@ d3.json("title_map.json", function(error, data){
             }
         }
     }
+    removeCommonWords(keywords);
+    removeCommonWords(keywords_loc);
+    for(var key in keywords){
+        if(keywords[key] < 4){
+            delete keywords[key];
+        }
+    }*/
+    svg1.select("#loading")
+        .remove();
     console.log("loaded keywords");
 });
 
@@ -84,28 +93,7 @@ d3.json("author_map.json", function(error, data){
         authorfile[data[i].author] = data[i].paper_ids; 
     }
     console.log("loaded authors");
-    svg1.select("#loading")
-        .remove();
 });
-
-/*d3.tsv("keywords_map.tsv", function(error, data){
-    console.log("loaded keywords")
-});*/
-/*
-d3.tsv("map.txt", function(data) {
-  for(var i = 0; i < data.length; i++){
-    var prefix = "http://journals.aps.org/";
-    var suffix = data[i].doi;
-    var doi = data[i].doi.split("/")[1];
-    var subfolders = doi.split(".");
-    subfolders[0] = folderhash[subfolders[0]];
-    subfolders[1] = "export";
-    subfolders[2] = suffix;
-    mapfile[data[i].index] = prefix.concat(subfolders.join("/"));
-  }
-  console.log("loaded map");
-});
-*/
 
 //Stores the vertices corresponding to each node in the fakedb variable
 d3.tsv("aps-citations_cleaned.mtx_23_IMPR_fakedb", function(data) {
@@ -120,7 +108,7 @@ d3.tsv("aps-citations_cleaned.mtx_23_IMPR_fakedb", function(data) {
     fakedb[index] = fields;
   }
   console.log(fakedb)
-  console.log("loaded fakedb"); 
+  console.log("loaded fakedb");     
 });
 
 //Removes common words from the provided dictionary
@@ -292,9 +280,11 @@ function loadpapers(nodeindex){
   }
 }
 
+//Creates a map of all circles that contain paper A
+//Ex: revfakedb[paper_id] = [circle1,circle2,...];
 function reverseFakedb(){
     for (var index in fakedb){
-        var slot = fakedb[index]
+        var slot = fakedb[index];
         for (var i = 0; i < slot.length; i++){
             if(revfakedb[slot[i]] == null){
                 revfakedb[slot[i]] = [];
@@ -302,6 +292,77 @@ function reverseFakedb(){
             }else{
                 revfakedb[slot[i]].push(index);
             }
+        }
+    }
+}
+
+//creating a mapping for every circle that participates in an intersection
+//Circle may participate in an intersection with different papers
+//cirMap structure:
+//  key = circle id
+//  value of cirMap[key] = a dict of papers that circle id intersects with
+//  Example: circle A intersects circle B and C, but intersection between A and B 
+//  is different from the intersection between A and C. The intersections are 
+//  categorized by paper, thus a dict of papers. 
+//  value of cirMap[key][paper key] = an array of circle ids
+function circleIntersecMap(papers){
+    cirMap = {};
+    for (var p_id in papers){
+        var slot = papers[p_id];
+        for(var c_id in papers[p_id]){
+            if(papers[p_id][c_id] == true){
+                if(cirMap[c_id] == null){
+                    cirMap[c_id] = {};
+                    cirMap[c_id][p_id] = [];
+                    for(var oc_id in papers[p_id]){
+                        if(oc_id != c_id) cirMap[c_id][p_id].push(oc_id)
+                    }
+                }else{
+                    cirMap[c_id][p_id] = [];
+                    for(var oc_id in papers[p_id]){
+                        if(oc_id != c_id) cirMap[c_id][p_id].push(oc_id)
+                    }
+                }
+            }
+            
+        }
+    }
+    return cirMap;
+}
+
+function displayIntersections(d,cirMap){
+    console.log(d);
+    var colors = d3.scale.linear()
+        .domain([1,2,3,4,5,6,7,8,9,10,11,12])
+        .range(["#8dd3c7",
+                "#ffffb3",
+                "#bebada",
+                "#fb8072",
+                "#80b1d3",
+                "#fdb462",
+                "#b3de69",
+                "#fccde5",
+                "#d9d9d9",
+                "#bc80bd",
+                "#ccebc5",
+                "#ffed6f"]);
+    var color_index = 0
+    for(var p_id in cirMap[d.index]){
+        color_index++;
+        console.log(p_id);
+        console.log(cirMap[d.index][p_id]);
+        for(var i = 0; i<cirMap[d.index][p_id].length; i++){
+            c_id = cirMap[d.index][p_id][i];
+            var x = svg1.selectAll("#p".concat(c_id))[0][0].__data__.x;
+            var y = svg1.selectAll("#p".concat(c_id))[0][0].__data__.y;
+            svg1.append("line")
+                .attr("id","intersection_line")
+                .style("stroke",function(d) {return color(color_index);})
+                .style("stroke-width", "3px")
+                .attr("x1",d.x-diameter/2 +10)
+                .attr("y1",d.y-diameter/2 +10)
+                .attr("x2",x-diameter/2 +10)
+                .attr("y2",y-diameter/2 +10);
         }
     }
 }
@@ -392,4 +453,4 @@ function loadpapers(nodeindex){
     });
   }
 }
-*/
+*/    
