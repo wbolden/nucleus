@@ -33,11 +33,12 @@ var doifile = [];
 //Maps a node index to a list of vertices, where each vertex represents a paper
 var fakedb = {};
 
-var titlefile = {};
-var authorfile = {};
-var revfakedb = {};
-var keywords = {};
-var keywords_loc = {};
+var titlefile = {};     //circles that contain title 
+var authorfile = {};    //circles that contain author
+var revfakedb = {};     //reverse of fakedb
+var keywords = {};      //keyword count
+var keywords_loc = {};  //circles that contain the keyword
+var numIntersect = {};  //num of intersects a circle participates in
 
 //Makes a doi into a filepath to load from the metadata file
 //eg 10.1103/PhysRev.1.1 -> PA/1/PhysRev.1.1
@@ -308,19 +309,25 @@ function reverseFakedb(){
 function circleIntersecMap(papers){
     cirMap = {};
     for (var p_id in papers){
-        var slot = papers[p_id];
         for(var c_id in papers[p_id]){
             if(papers[p_id][c_id] == true){
                 if(cirMap[c_id] == null){
+                    numIntersect[c_id] = 0;
                     cirMap[c_id] = {};
                     cirMap[c_id][p_id] = [];
                     for(var oc_id in papers[p_id]){
-                        if(oc_id != c_id) cirMap[c_id][p_id].push(oc_id)
+                        if(oc_id != c_id){ 
+                            cirMap[c_id][p_id].push(oc_id);
+                            numIntersect[c_id]++;
+                        }
                     }
                 }else{
                     cirMap[c_id][p_id] = [];
                     for(var oc_id in papers[p_id]){
-                        if(oc_id != c_id) cirMap[c_id][p_id].push(oc_id)
+                        if(oc_id != c_id){
+                            cirMap[c_id][p_id].push(oc_id);
+                            numIntersect[c_id]++;
+                        }
                     }
                 }
             }
@@ -353,7 +360,16 @@ function displayIntersections(d,cirMap){
         console.log(cirMap[d.index][p_id]);
         for(var i = 0; i<cirMap[d.index][p_id].length; i++){
             c_id = cirMap[d.index][p_id][i];
-            var x = svg1.selectAll("#p".concat(c_id))[0][0].__data__.x;
+            svg1.selectAll("#p".concat(c_id))
+                .style("fill", function(d){
+                    if(numIntersect[c_id] < 9) return intersect_color(numIntersect[c_id]);
+                    else{
+                        return "#e41a1c";
+                    }
+                })
+                .style("stroke-width",4)
+                .style("stroke","yellow");
+            /*var x = svg1.selectAll("#p".concat(c_id))[0][0].__data__.x;
             var y = svg1.selectAll("#p".concat(c_id))[0][0].__data__.y;
             svg1.append("line")
                 .attr("id","intersection_line")
@@ -362,10 +378,39 @@ function displayIntersections(d,cirMap){
                 .attr("x1",d.x-diameter/2 +10)
                 .attr("y1",d.y-diameter/2 +10)
                 .attr("x2",x-diameter/2 +10)
-                .attr("y2",y-diameter/2 +10);
+                .attr("y2",y-diameter/2 +10);*/
         }
     }
 }
+
+function colorIntersections(tot_papers){
+    svg1.selectAll("circle")
+        .style("fill", "white");
+    for(var p_id in tot_papers){
+        var xCoor = [];
+        var yCoor = [];
+        for(var c_id in tot_papers[p_id]){   
+            if(tot_papers[p_id][c_id] == true){
+                svg1.selectAll("#p".concat(c_id))
+                    .style("fill", function(d){
+                        if(numIntersect[c_id] < 9) return intersect_color(numIntersect[c_id]);
+                        else{
+                            return "#e41a1c";
+                        }
+                    });
+/*                    .style("fill", function(d){
+                            if(numIntersect[c_id] < 5) return "white";
+                            else if(numIntersect[c_id] < 9 && numIntersect[c_id] >= 5){
+                                return "#984ea3";
+                            }else{
+                                return "#e41a1c";
+                            }
+                        });*/
+            }
+        }
+    }
+}
+
 /*
 function loadpapers(nodeindex){
   //Two hash tables holding info about the most common words and authors

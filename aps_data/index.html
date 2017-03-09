@@ -114,10 +114,16 @@ var color = d3.scale.linear()
     //red scheme
     .range(["#4eb3d3", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"])
     .interpolate(d3.interpolate); 
-var grayColor = d3.scale.linear()
-    .domain([0, 1, 2, 3, 4])
-    .range(["#f0f0f0", "#d9d9d9", "#bdbdbd", "#969696", "#969696"])
-    .interpolate(d3.interpolate);
+var intersect_color = d3.scale.linear()
+    .domain([1,2,3,4,5,6,7,8])
+    .range(["#4daf4a",
+            "#4daf4a",
+            "#377eb8",
+            "#377eb8",
+            "#ff7f00",
+            "#ff7f00",
+            "#984ea3",
+            "#984ea3"]);
 var pack = d3.layout.pack()
     .padding(2)
     .size([diameter - margin, diameter - margin])
@@ -130,6 +136,13 @@ var svg1 = d3.select("#dv_1").append("svg")
 svg1.append("text")
     .attr("id","loading")
     .text("Loading Data...");
+/*var line = d3.svg.line()
+        .x(function (d) {
+            return d.x;
+        })
+        .y(function (d) {
+            return d.y;
+        });*/
 function filter(data, size){
   if(data.children == undefined) return;
   data.children = data.children.filter(function(a){return a.size>size;});
@@ -145,11 +158,11 @@ var brush_on = false;
 var brushCounter = 0;
 var intersection_on = false;
     
-function toggleBrush() {
+/*function toggleBrush() {
     brushCounter++;
     brush_on = brushCounter%2 == 0? false : true;
     document.getElementById("brush_toggle").value = brushCounter%2 == 0? "Brush Off" : "Brush On";
-};
+};*/
 
 d3.select("#submit_size").on("click", function() {
     var size = parseInt(document.getElementById("size_limiter").value);
@@ -256,49 +269,36 @@ function redraw(size){
                     
                 }
             })
-            .on("mouseover", function(d) {svg1.select("#subgraph_id").text(parsename(d.name))});
+            .on("mouseover", function(d) {
+                svg1.select("#subgraph_id").text(parsename(d.name))
+                if(getDensity(d.name) != -1.0 && intersection_on){
+                    svg1.selectAll("circle")
+                        .style("fill", "white");
+                    svg1.selectAll("#p".concat(d.index))
+                        .style("fill", intersect_color(numIntersect[d.index]));
+                    displayIntersections(d,cirMap);
+                }
+            })
+            .on("mouseout", function(d) {
+                if(getDensity(d.name) != -1.0 && intersection_on){
+                    svg1.selectAll("#intersection_line")
+                        .remove();
+                    svg1.selectAll("circle")
+                        .style("stroke-width",1)
+                        .style("stroke","black");
+                    colorIntersections(tot_papers);
+                }
+            });
         
         d3.select("#change_mode").on("click", function(){
-            //console.log("clicked");
-            if(intersection_on) intersection_on = false;
-            else intersection_on = true; 
-            
             if(intersection_on){
-                svg1.selectAll("circle")
-                    .style("fill", "white");
-                var intersectCounter = 0;
-                var intersect_color = d3.scale.linear()
-                    .domain([1,2,3,4,5,6,7,8])
-                    .range(["#4daf4a","#4daf4a","#377eb8","#377eb8","#ff7f00","#ff7f00","#984ea3","#984ea3"]);
-                for(var p_id in tot_papers){
-                    var xCoor = [];
-                    var yCoor = [];
-                    for(var c_id in tot_papers[p_id]){
-                        if(tot_papers[p_id][c_id] == true){
-                            intersectCounter++;
-                            svg1.selectAll("#p".concat(c_id))
-                                .style("fill", function(d){
-                                    if(intersectCounter < 9) return intersect_color(intersectCounter);
-                                    else{
-                                        return "#e41a1c";
-                                    }
-                                });
-/*                          var x = svg1.selectAll("#p".concat(c_id))[0][0].__data__.x;
-                            var y = svg1.selectAll("#p".concat(c_id))[0][0].__data__.y;
-                            xCoor.push(x);
-                            yCoor.push(y);*/
-                        }
-                    }
-/*                    if(xCoor.length > 1 && yCoor.length > 1){
-                        svg1.append("line")
-                            .style("stroke","black")
-                            .attr("x1",xCoor[0]-diameter/2 +10)
-                            .attr("y1",yCoor[0]-diameter/2 +10)
-                            .attr("x2",xCoor[1]-diameter/2 +10)
-                            .attr("y2",yCoor[1]-diameter/2 +10);
-                    }*/
-                    intersectCounter = 0;
-                }
+                intersection_on = false; 
+            }else{
+                intersection_on = true;
+                zoom(root);
+            }
+            if(intersection_on){
+                colorIntersections(tot_papers);
             }else{
                 svg1.selectAll("circle")
                     .style("fill", function(d){
@@ -449,7 +449,7 @@ function redraw(size){
       } 
 
       function zoomed() {
-        if (brush_on !== true){
+        if (intersection_on !== true){
             
             var s = zoom2.scale();
             var panVector = zoom2.translate();
