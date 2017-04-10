@@ -1,4 +1,5 @@
 var load_metadata_online = false;
+var buildsearch = false;
 
 
 var word_count = {};
@@ -63,27 +64,31 @@ d3.json("title_map.json", function(error, data){
     reverseFakedb();
     console.log("loaded revfakedb");
     console.log("loaded titles");
-    /*for(var title in titlefile){
-        str = title.split(" ");
-        for(var j = 0; j<str.length; j++){
-            str = removePunc(str);
-            if(keywords[str[j]] == undefined){
-                keywords[str[j]] = 1;
-                keywords_loc[str[j]] = [];
-                keywords_loc[str[j]].push(titlefile[title]);
-            }else{
-                keywords[str[j]]++;
-                keywords_loc[str[j]].push(titlefile[title]);
-            }
-        }
+
+    if(buildsearch){
+      for(var title in titlefile){
+          str = title.split(" ");
+          for(var j = 0; j<str.length; j++){
+              str = removePunc(str);
+              if(keywords[str[j]] == undefined){
+                  keywords[str[j]] = 1;
+                  keywords_loc[str[j]] = [];
+                  keywords_loc[str[j]].push(titlefile[title]);
+              }else{
+                  keywords[str[j]]++;
+                  keywords_loc[str[j]].push(titlefile[title]);
+              }
+          }
+      }
+      removeCommonWords(keywords);
+      removeCommonWords(keywords_loc);
+      for(var key in keywords){
+          if(keywords[key] < 4){
+              delete keywords[key];
+          }
+      }
     }
-    removeCommonWords(keywords);
-    removeCommonWords(keywords_loc);
-    for(var key in keywords){
-        if(keywords[key] < 4){
-            delete keywords[key];
-        }
-    }*/
+
     svg1.select("#loading")
         .remove();
     console.log("loaded keywords");
