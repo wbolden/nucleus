@@ -1,5 +1,5 @@
 var load_metadata_online = false;
-var buildsearch = false;
+var buildsearch = true;
 
 
 var word_count = {};
@@ -82,11 +82,13 @@ d3.json("title_map.json", function(error, data){
       }
       removeCommonWords(keywords);
       removeCommonWords(keywords_loc);
+      /*
       for(var key in keywords){
           if(keywords[key] < 4){
               delete keywords[key];
           }
       }
+       */
     }
 
     svg1.select("#loading")
