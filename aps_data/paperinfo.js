@@ -1,5 +1,5 @@
 var load_metadata_online = false;
-var buildsearch = true;
+var buildsearch = false;
 
 
 var word_count = {};
@@ -344,8 +344,9 @@ function circleIntersecMap(papers){
     return cirMap;
 }
 
+//display intersection for a selected node
 function displayIntersections(d,cirMap){
-    console.log(d);
+    /*console.log(d);
     var colors = d3.scale.linear()
         .domain([1,2,3,4,5,6,7,8,9,10,11,12])
         .range(["#8dd3c7",
@@ -360,16 +361,16 @@ function displayIntersections(d,cirMap){
                 "#bc80bd",
                 "#ccebc5",
                 "#ffed6f"]);
-    var color_index = 0
+    var color_index = 0*/
     for(var p_id in cirMap[d.index]){
-        color_index++;
-        console.log(p_id);
-        console.log(cirMap[d.index][p_id]);
+        /*color_index++;*/
+        /*console.log(p_id);
+        console.log(cirMap[d.index][p_id]);*/
         for(var i = 0; i<cirMap[d.index][p_id].length; i++){
             c_id = cirMap[d.index][p_id][i];
             svg1.selectAll("#p".concat(c_id))
                 .style("fill", function(d){
-                    if(numIntersect[c_id] < 9) return intersect_color(numIntersect[c_id]);
+                    if(numIntersect[c_id] <= 9) return intersect_color(numIntersect[c_id]);
                     else{
                         return "#e41a1c";
                     }
@@ -390,29 +391,20 @@ function displayIntersections(d,cirMap){
     }
 }
 
+//Colors all intersections
 function colorIntersections(tot_papers){
     svg1.selectAll("circle")
         .style("fill", "white");
     for(var p_id in tot_papers){
-        var xCoor = [];
-        var yCoor = [];
         for(var c_id in tot_papers[p_id]){   
             if(tot_papers[p_id][c_id] == true){
                 svg1.selectAll("#p".concat(c_id))
                     .style("fill", function(d){
-                        if(numIntersect[c_id] < 9) return intersect_color(numIntersect[c_id]);
+                        if(numIntersect[c_id] <= 9) return intersect_color(numIntersect[c_id]);
                         else{
                             return "#e41a1c";
                         }
                     });
-/*                    .style("fill", function(d){
-                            if(numIntersect[c_id] < 5) return "white";
-                            else if(numIntersect[c_id] < 9 && numIntersect[c_id] >= 5){
-                                return "#984ea3";
-                            }else{
-                                return "#e41a1c";
-                            }
-                        });*/
             }
         }
     }

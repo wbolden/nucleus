@@ -2,6 +2,40 @@
 <meta charset="utf-8">
 <title>aps-citiations_cleaned.mtx_23_IMPR_circle.json</title>
 <style>
+.key path {
+  display: none;
+}
+.key line {
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+#info {
+    background-color: white; 
+    width: 25vw;
+    float: right! important;
+}
+#legend {
+    width: 25vw;
+    height: 5vw;
+    background-color: white;
+}
+#classifcation {
+    width: 25vw; 
+    height: 5vw;
+    background-color: white;
+    overflow-y:scroll;
+}
+#paperinfo {
+    width: 25vw; 
+    height: 15vw;
+    background-color: white; 
+    overflow-y:scroll;
+}
+#charts {
+    width: 25vw; 
+    height: 23vw;
+    background-color: green; 
+}
 .node {
   cursor: pointer;
   stroke: #000;
@@ -22,11 +56,6 @@
 .label,
 .node--root {
   pointer-events: none;
-}
-.brush .extent {
-  fill-opacity: .1;
-  stroke: #fff;
-  shape-rendering: crispEdges;
 }
 * {
     box-sizing: border-box;
@@ -59,9 +88,6 @@
 <body>
     <div class="container" style="width: 100%;">
         <div class="row">
-            <!--<div class="col-1">
-                <input id="brush_toggle" type="button" value="Brush Off" onclick="toggleBrush()" />
-            </div>-->
             <div class="col-1">
                 <input id="submit_size" type="button" value="Update Visual">
             </div>
@@ -83,14 +109,19 @@
             
         </div>
         <div class="row">
-            <div class="col-8">
+            <div class="col-9">
                 <div id="dv_1"></div>  
             </div>
-            <div class="col-4">
-                <div id="info" style="background-color: white;width: 500px;">
-                    <center><b>Paper Information:</b></center><br>
-                    <div id="classifcation" style="width: 500px; float: right; background-color: white;"></div>
-                    <div id="paperinfo" style="width: 500px; height:800px;float: right; background-color: white; overflow-y:scroll;"></div>
+            <div class="col-3">
+                    
+                <div class="row">
+                    <div id="info">
+                        <div id="legend"></div>
+                        <center><b>Paper Information:</b></center><br>
+                        <div id="classifcation"></div>
+                        <div id="paperinfo"></div>
+                        <div id="charts"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -103,39 +134,112 @@
 <script src="paperinfo.js"></script>
 
 <script>
-
 var $ = function( id ) { return document.getElementById( id ); };
 var margin = 20,
-    diameter = screen.height - 170;
-var color = d3.scale.linear()
+    diameter = screen.height - screen.height/9;
+var den_label = "Edge Density";
+var density_color = d3.scale.linear()
     .domain([0, 1, 2, 3, 4])
-    //blue scheme
-/*    .range(["rgb(0,0,255)", "rgb(0,255,255)", "rgb(0,255,0)", "rgb(255,255,0)", "rgb(255,0,0)"])*/
-    //red scheme
     .range(["#4eb3d3", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"])
-    .interpolate(d3.interpolate); 
+    .interpolate(d3.interpolate);
+var den_xScale = d3.scale.linear()
+    .domain([0, 5])
+    .range([0, 300]);
+console.log(density_color.domain().length)
+var inter_label = "Number of Intersections";
 var intersect_color = d3.scale.linear()
-    .domain([1,2,3,4,5,6,7,8])
-    .range(["#4daf4a",
-            "#4daf4a",
-            "#377eb8",
-            "#377eb8",
-            "#ff7f00",
-            "#ff7f00",
-            "#984ea3",
-            "#984ea3"]);
+    .domain([1,2,3,4,5,6,7,8,9])
+    .range(["#4daf4a","#4daf4a","#377eb8","#377eb8","#ff7f00","#ff7f00","#984ea3","#984ea3","#e41a1c"]);
+var intersect_color2 = d3.scale.linear()
+    .domain([0,1,2,3,4,5,6,7,8])
+    .range(["#4daf4a","#4daf4a","#377eb8","#377eb8","#ff7f00","#ff7f00","#984ea3","#984ea3","#e41a1c"]);
+var inter_xScale = d3.scale.linear()
+    .domain([0, 8])
+    .range([0, 400]);
 var pack = d3.layout.pack()
     .padding(2)
     .size([diameter - margin, diameter - margin])
     .value(function(d) { return d.size; })
 var svg1 = d3.select("#dv_1").append("svg")
-    .attr("width", screen.width - 170)
+    .attr("width", screen.width - 2*margin)
     .attr("height", diameter)
     .append("g")
     .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 svg1.append("text")
     .attr("id","loading")
     .text("Loading Data...");
+/////////////////////////////Code for legend//////////////////////////////////////
+var svg2 = d3.select("#legend").append("svg")
+    .attr("width", screen.width/4 + margin)
+    .attr("height", screen.height/8 + margin);
+var svg3 = svg2.append("g")
+    .attr("class", "key")
+    .attr("transform", "translate("+ margin +","+ margin*2 +")");
+function draw_legend(color, xScale, label){
+    var formatNumber = d3.format(",d");
+    var isDens = color.domain().length == 5 ? true : false;
+    var densityScale = d3.scale.linear()
+        .domain([0,1,2,3,4,5])
+        .range([0.0,0.2,0.4,0.6,0.8,1.0])
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom")
+        .tickSize(isDens ? 23 : 15)
+        .tickValues(function(d) {
+            if (isDens) {
+                return densityScale.domain(); 
+            }else{
+                return color.domain();
+            }
+        })
+        .tickFormat(function(d) { 
+            if (isDens) {
+                return densityScale(d);  
+            }else{
+                return formatNumber(d+1);
+            }
+            
+        });
+    svg3.selectAll("rect")
+        .data(color.range().map(function(d, i) {
+          return {
+            x0: i*(xScale.range()[1]/(isDens ? 
+                                      color.domain().length:
+                                      color.domain().length-1)),
+            x1: xScale.range()[1]/(isDens ? 
+                                   color.domain().length:
+                                   color.domain().length-1),
+            z: d
+          };
+        }))
+        .enter().append("rect")
+        .attr("id","rect_legend")
+        .attr("height", 15)
+        .attr("x", function(d) { return d.x0; })
+        .attr("width", function(d) { return isDens ? d.x1 : d.x1/2; })
+        .style("fill", function(d) { return d.z; });
+    svg3.call(xAxis).append("text")      
+        .attr("id","text_legend")
+        .attr("y", -10)
+        .attr("font-weight", "bold")
+        .text(label); 
+}
+function delete_legend(){
+    svg3.selectAll("#rect_legend")
+        .remove()
+    svg3.selectAll("#text_legend")
+        .remove()
+}
+//////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////Code for Chart///////////////////////////////////////  
+var svg4 = d3.select("#charts").append("svg")
+    .attr("width", screen.width/4 + margin)
+    .attr("height", screen.height/8 + margin);
+var svg5 = svg4.append("g")
+    .attr("transform", "translate("+ margin +","+ margin +")");    
+
+//////////////////////////////////////////////////////////////////////////////////
 /*var line = d3.svg.line()
         .x(function (d) {
             return d.x;
@@ -154,15 +258,7 @@ function filter(data, size){
 var position;
 var saveScale = null;
 var saveTranslation = null;
-var brush_on = false;
-var brushCounter = 0;
 var intersection_on = false;
-    
-/*function toggleBrush() {
-    brushCounter++;
-    brush_on = brushCounter%2 == 0? false : true;
-    document.getElementById("brush_toggle").value = brushCounter%2 == 0? "Brush Off" : "Brush On";
-};*/
 
 d3.select("#submit_size").on("click", function() {
     var size = parseInt(document.getElementById("size_limiter").value);
@@ -170,17 +266,14 @@ d3.select("#submit_size").on("click", function() {
         .remove();
     svg1.selectAll("text")
         .remove();
-    if(brush_on){
-        brush_on = false;
-        toggleBrush();
-    };
-    svg1.selectAll("#myBrush")
-        .remove();
-    if(intersection_on){
-        intersection_on = false;
-    };
-    svg1.selectAll("#intersection_line")
-        .remove();
+    /*svg1.selectAll("#intersection_line")
+        .remove();*/
+    delete_legend();
+    if(!intersection_on){
+        draw_legend(density_color, den_xScale, den_label);
+    }else{
+        draw_legend(intersect_color2, inter_xScale, inter_label);
+    }
     redraw(size);
 })
 
@@ -245,7 +338,17 @@ function redraw(size){
                 id = "p".concat(String(id));
                 return id;
             })
-            .style("fill", function(d) { return color(d.color); })    
+            .style("fill", function(d) { 
+                if (!intersection_on) return density_color(d.color);
+                else{
+                    if(numIntersect[d.index] == null) return "white";
+                    if(numIntersect[d.index] <= 9){ 
+                        return intersect_color(numIntersect[d.index]);
+                    }else{
+                        return "#e41a1c";
+                    }
+                }
+            })    
             .on("click", function(d) { 
                 if (d3.event.defaultPrevented != true){
                     
@@ -271,18 +374,23 @@ function redraw(size){
             })
             .on("mouseover", function(d) {
                 svg1.select("#subgraph_id").text(parsename(d.name))
-                if(getDensity(d.name) != -1.0 && intersection_on){
+                if(getDensity(d.name) != -1.0 && intersection_on && numIntersect[d.index] != null){
                     svg1.selectAll("circle")
                         .style("fill", "white");
                     svg1.selectAll("#p".concat(d.index))
-                        .style("fill", intersect_color(numIntersect[d.index]));
+                        .style("fill", function(d){
+                            if(numIntersect[d.index] <= 9) return intersect_color(numIntersect[d.index]);
+                            else{
+                                return "#e41a1c";
+                            }
+                        })
                     displayIntersections(d,cirMap);
                 }
             })
             .on("mouseout", function(d) {
-                if(getDensity(d.name) != -1.0 && intersection_on){
-                    svg1.selectAll("#intersection_line")
-                        .remove();
+                if(getDensity(d.name) != -1.0 && intersection_on && numIntersect[d.index] != null){
+                    /*svg1.selectAll("#intersection_line")
+                        .remove();*/
                     svg1.selectAll("circle")
                         .style("stroke-width",1)
                         .style("stroke","black");
@@ -291,20 +399,28 @@ function redraw(size){
             });
         
         d3.select("#change_mode").on("click", function(){
+            delete_legend();
             if(intersection_on){
                 intersection_on = false; 
+                draw_legend(density_color, den_xScale, den_label);
+                svg1.selectAll("circle")
+                    .style("fill", function(d){
+                        return density_color(d.color);
+                    })
             }else{
                 intersection_on = true;
+                draw_legend(intersect_color2, inter_xScale, inter_label);
+                colorIntersections(tot_papers);
                 zoom(root);
             }
-            if(intersection_on){
+/*            if(intersection_on){
                 colorIntersections(tot_papers);
             }else{
                 svg1.selectAll("circle")
                     .style("fill", function(d){
-                        return color(d.color);
+                        return density_color(d.color);
                     })
-            }
+            }*/
         })
         
         d3.select("#find_data").on("click", function() {
@@ -390,43 +506,7 @@ function redraw(size){
             .attr("x", -80)
             .attr("y", -300)
             .attr("id","subgraph_id")
-            .text(parsename(root.name));
-
-          d3.select("#brush_toggle").on("click", function() {
-              console.log("in button");
-              if(brush_on){ 
-                    if (saveScale === null) saveScale = zoom2.scale();
-                    if (saveTranslation === null) saveTranslation = zoom2.translate();
-                      var brush = svg1.append("g")
-                      .datum(function() { return {selected: false, previouslySelected: false}; })
-                      .attr("class", "brush")
-                      .attr("id", "myBrush")
-                      .call(d3.svg.brush()
-                        .x(d3.scale.identity().domain([-diameter, diameter]))
-                        .y(d3.scale.identity().domain([-diameter, diameter]))
-                        .on("brushstart", function(d) {
-                          node.each(function(d) { d.previouslySelected = d.selected; });
-                        })
-                        .on("brush", function() {
-                          var extent = d3.event.target.extent();
-                          node.classed("selected", function(d) {
-                            return d.selected = d.previouslySelected ^
-                                (extent[0][0] <= d.x && d.x < extent[1][0]
-                                && extent[0][1] <= d.y && d.y < extent[1][1]);
-                          });
-                        })
-                        .on("brushend", function() {
-                          d3.event.target.clear();
-                          d3.select(this).call(d3.event.target);
-                        }));
-              } else {
-                    if (saveScale !== null) zoom2.scale(saveScale);
-                    if (saveTranslation !== null) zoom2.translate(saveTranslation);
-                    console.log("in remove");
-                    svg1.selectAll("#myBrush")
-                    .remove();
-              };    
-          });  
+            .text(parsename(root.name));  
 
       circle = circle.filter(function(d) {return (d.size >= 0) && (d.name != "")});
         
