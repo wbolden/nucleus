@@ -2,7 +2,7 @@
 function parsename(str) {
   var split = str.split(" ");
   var density = parseFloat(split[1]);
-  if(density == -1.0){
+  if(density < 0.01){
     split[1] = "<0.01";
   }
   if(split[0] == "4294967277"){
