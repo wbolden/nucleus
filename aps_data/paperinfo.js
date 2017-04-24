@@ -154,6 +154,8 @@ function stripHTML(string){
 
 
 function display_paper_stats(){
+  top_words = [];
+  top_freq = [];
   //console.log(word_count, author_count);
   word_count = removeCommonWords(word_count);
   var words_array = [];
@@ -170,6 +172,8 @@ function display_paper_stats(){
   var authors = "<b>Common authors:</b> ";
   for(var n = 0; n < 7; n++){
     words += words_array[n][0].concat(" (").concat(words_array[n][1]).concat(")");
+    top_words.push(words_array[n][0]);
+    top_freq.push(words_array[n][1]);
     authors += authors_array[n][0].concat(" (").concat(authors_array[n][1]).concat(")");
     if(n < 7-1) {
       words = words.concat(", ");
@@ -177,7 +181,8 @@ function display_paper_stats(){
     }
   }
   $("classifcation").innerHTML = words.concat("<br>").concat(authors).concat("<br><br>");
- //console.log(words_array, authors_array);
+  graph_words(top_words,top_freq);
+ console.log(words_array, authors_array);
 }
 
 function get_paper_info_json(error, data) {
@@ -408,6 +413,78 @@ function colorIntersections(tot_papers){
             }
         }
     }
+}
+
+function graph_words(words,freq){
+    var data = {key: words, value: freq};
+    for (var i = 0; i < data.value.length; i++) {
+      data.value[i] = data.value[i] + i/10;
+    }
+    var margin = {top: 50, right: 20, bottom: 130, left: 40},
+        width = screen.width/4.2 - margin.left - margin.right,
+        height = screen.height/3 - margin.top - margin.bottom;
+    var svg4 = d3.select("#charts").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    var svg5 = svg4.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
+    var xScale = d3.scale.ordinal()
+        .domain(d3.range(data.value.length))
+        .rangeRoundBands([0, width], 0.1);
+    var yScale = d3.scale.linear()
+        .domain([0,d3.max(data.value)])
+        .range([height, 0]);
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom");
+    var yAxis = d3.svg.axis() 
+        .scale(yScale)
+        .orient("left")
+        .ticks(5)
+        .tickFormat(function(d){ return d; });
+    var textScale = d3.scale.ordinal()
+        .domain(d3.range(data.value.length))
+        .range(data.key);
+    svg5.selectAll("rect")
+        .data(data.value, function(d) { console.log(d); return d; })
+        .enter()
+        .append("rect")
+        .attr({
+            "x": function(d, i) { console.log(i); return xScale(i); },
+            "y": function(d, i) { console.log(d); return yScale(d - i/10); },
+            "width": xScale.rangeBand(),
+            "height": function(d, i) { return height - yScale(d - i/10); },
+            "fill": "blue"
+        })
+    svg5.selectAll("text")
+       .data(data.value, function(d) { return d; })
+       .enter()
+       .append("text")
+       .text(function(d,i) {
+          return Math.round(d - i/10);
+       })
+       .attr({
+          "x": function(d, i) { return xScale(i) + xScale.rangeBand()/2; }, 
+          "y": function(d, i) { return yScale((d - i/10) + .5); }, 
+          "font-size": "15px",    
+          "fill": "black",  
+          "text-anchor": "middle"
+       })
+    svg5.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .selectAll("text")
+        .attr("transform", "rotate(-60)") //rotates the labels for readability 
+        .attr("dx", "-.8em")
+        .attr("dy", ".25em")
+        .style("text-anchor", "end")
+        .attr("font-size", "15px")
+        .text( function(d) { return textScale(d);});
+    svg5.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(0, 0)")
+        .call(yAxis);
 }
 
 /*

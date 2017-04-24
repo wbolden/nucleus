@@ -1,3 +1,13 @@
+.axis path,
+.axis line {
+    fill: none;
+    stroke: Black;
+    shape-rendering: crispEdges;
+}
+.axis text{
+    font-size: 15px;
+    font-weight: bold;  
+}
 .key path {
   display: none;
 }
@@ -30,7 +40,8 @@
 #charts {
     width: 25vw; 
     height: 23vw;
-    background-color: green; 
+    background-color: white; 
+    overflow-y:scroll;
 }
 .node {
   cursor: pointer;
