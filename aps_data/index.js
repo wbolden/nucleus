@@ -95,15 +95,6 @@ function delete_legend(){
         .remove()
 }
 //////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////Code for Chart///////////////////////////////////////  
-var svg4 = d3.select("#charts").append("svg")
-    .attr("width", screen.width/4 + margin)
-    .attr("height", screen.height/8 + margin);
-var svg5 = svg4.append("g")
-    .attr("transform", "translate("+ margin +","+ margin +")");    
-
-//////////////////////////////////////////////////////////////////////////////////
 /*var line = d3.svg.line()
         .x(function (d) {
             return d.x;
@@ -265,7 +256,7 @@ function redraw(size){
         svg1.append("text")
             .attr("id","subgraph_id")
             .style("font-size", "30px")
-            .style("fill", "white")
+            .style("fill", intersection_on ? "black" : "white")
             .attr("x", -80)
             .attr("y", -300)
             .text(parsename(root.name));
@@ -285,6 +276,8 @@ function redraw(size){
                 colorIntersections(tot_papers);
                 zoom(root);
             }
+            svg1.selectAll("#subgraph_id")
+                .style("fill", intersection_on ? "black" : "white")
 /*            if(intersection_on){
                 colorIntersections(tot_papers);
             }else{
