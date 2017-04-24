@@ -198,7 +198,10 @@ function display_paper_stats(){
     }
   }
   $("classifcation").innerHTML = words.concat("<br>").concat(authors).concat("<br><br>");
-  graph_words(top_words,top_wfreq,0);
+    //Remove old plot if it exists
+    d3.select('#plot_svg').remove()
+    d3.select('#plot_svg').remove()
+    graph_words(top_words,top_wfreq,0);
   graph_words(top_authors,top_afreq,1);
  console.log(words_array, authors_array);
 }
@@ -451,8 +454,7 @@ function graph_words(words,freq,type){
         height = screen.height/3 - margin.top - margin.bottom;
 
 
-    //Remove old plot if it exists
-    d3.select('#plot_svg').remove()
+
 
     var svg4 = d3.select("#charts").append("svg")
         .attr("width", width + margin.left + margin.right)
