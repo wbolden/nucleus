@@ -155,7 +155,9 @@ function stripHTML(string){
 
 function display_paper_stats(){
   top_words = [];
-  top_freq = [];
+  top_wfreq = [];
+  top_authors = [];
+  top_afreq = [];
   //console.log(word_count, author_count);
   word_count = removeCommonWords(word_count);
   var words_array = [];
@@ -173,7 +175,9 @@ function display_paper_stats(){
   for(var n = 0; n < 7; n++){
     words += words_array[n][0].concat(" (").concat(words_array[n][1]).concat(")");
     top_words.push(words_array[n][0]);
-    top_freq.push(words_array[n][1]);
+    top_wfreq.push(words_array[n][1]);
+    top_authors.push(authors_array[n][0]);
+    top_afreq.push(authors_array[n][1]);
     authors += authors_array[n][0].concat(" (").concat(authors_array[n][1]).concat(")");
     if(n < 7-1) {
       words = words.concat(", ");
@@ -181,7 +185,8 @@ function display_paper_stats(){
     }
   }
   $("classifcation").innerHTML = words.concat("<br>").concat(authors).concat("<br><br>");
-  graph_words(top_words,top_freq);
+  graph_words(top_words,top_wfreq,0);
+  graph_words(top_authors,top_afreq,1);
  console.log(words_array, authors_array);
 }
 
@@ -415,12 +420,12 @@ function colorIntersections(tot_papers){
     }
 }
 
-function graph_words(words,freq){
+function graph_words(words,freq,type){
     var data = {key: words, value: freq};
     for (var i = 0; i < data.value.length; i++) {
       data.value[i] = data.value[i] + i/10;
     }
-    var margin = {top: 50, right: 20, bottom: 130, left: 40},
+    var margin = {top: 40, right: 20, bottom: 130, left: 40},
         width = screen.width/4.2 - margin.left - margin.right,
         height = screen.height/3 - margin.top - margin.bottom;
     var svg4 = d3.select("#charts").append("svg")
@@ -454,7 +459,7 @@ function graph_words(words,freq){
             "y": function(d, i) { console.log(d); return yScale(d - i/10); },
             "width": xScale.rangeBand(),
             "height": function(d, i) { return height - yScale(d - i/10); },
-            "fill": "blue"
+            "fill": type == 0 ? "blue" : "green"
         })
     svg5.selectAll("text")
        .data(data.value, function(d) { return d; })
@@ -465,7 +470,7 @@ function graph_words(words,freq){
        })
        .attr({
           "x": function(d, i) { return xScale(i) + xScale.rangeBand()/2; }, 
-          "y": function(d, i) { return yScale((d - i/10) + .5); }, 
+          "y": function(d, i) { return yScale(d - i/10); }, 
           "font-size": "15px",    
           "fill": "black",  
           "text-anchor": "middle"
@@ -485,7 +490,15 @@ function graph_words(words,freq){
         .attr("class", "y axis")
         .attr("transform", "translate(0, 0)")
         .call(yAxis);
+    svg5.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text(type == 0 ? "Common Words" : "Common Authors");
 }
+
 
 /*
 function loadpapers(nodeindex){
