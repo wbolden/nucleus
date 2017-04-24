@@ -104,12 +104,25 @@ d3.json("author_map.json", function(error, data){
 });
 
 //Stores the vertices corresponding to each node in the fakedb variable
-d3.tsv("aps-citations_cleaned.mtx_23_IMPR_fakedb", function(data) {
+d3.tsv("aps-citations_cleaned.mtx_34_IMPR_fakedb", function(data) {
+
+  console.log(data, data[0].info, data[0],  data.length)
+
   for(var i = 0; i <data.length; i++){
+    //console.log(i, data[i])
     var fields = data[i].info.split(" ");
     index = fields[0];
-    fields.remove(-1); //Remove last element, always a -1
-    fields.remove(0, 5); //Remove first 5 elements to be left with vertices only
+
+    if (fields.length > 1000) {
+      fakedb[index] = [];
+      continue;
+    }
+
+    //fields.remove(-1); //Remove last element, always a -1
+    //fields.remove(0,5); //Remove first 5 elements to be left with vertices only
+
+    fields = fields.slice(0, fields.length-1) //Remove last element, always a -1
+    fields = fields.slice(5, fields.length); //Remove first 5 elements to be left with vertices only
     for(var v = 0; v < fields.length; v++){
       fields[v] = parseInt(fields[v]);
     }
@@ -196,6 +209,10 @@ function get_paper_info_json(error, data) {
       word_count[word]++;
     }
   }
+
+
+  //console.log(data)
+
   title = "<b>Title: </b>".concat(title).concat("<br>");
   var authors = "<b>Authors: </b>";
   for(var n = 0; n < data.authors.length; n++) {
@@ -211,7 +228,7 @@ function get_paper_info_json(error, data) {
     }
   }
   authors = authors.concat("<br>")
-  var paperinfo = title.concat(authors).concat("<br>");
+  var paperinfo = title.concat(authors)+"<b>Published:</b> "+data.date+"<br><br>";
   $('paperinfo').innerHTML += paperinfo;
 
   clearTimeout(timeout);
@@ -259,7 +276,7 @@ function get_paper_info_bibtex(error, text) {
       }
     }
     authors = authors.concat("<br>")
-    var paperinfo = title.concat(authors).concat("<br>");
+    var paperinfo = title.concat(authors)+"<b>Published:<b>"+data.date+"<br><br>";
     $('paperinfo').innerHTML += paperinfo;
     clearTimeout(timeout);
     timeout = setTimeout(display_paper_stats, 100);
@@ -415,17 +432,28 @@ function colorIntersections(tot_papers){
     }
 }
 
+
+
 function graph_words(words,freq){
     var data = {key: words, value: freq};
     for (var i = 0; i < data.value.length; i++) {
       data.value[i] = data.value[i] + i/10;
     }
+
     var margin = {top: 50, right: 20, bottom: 130, left: 40},
         width = screen.width/4.2 - margin.left - margin.right,
         height = screen.height/3 - margin.top - margin.bottom;
+
+
+    //Remove old plot if it exists
+    d3.select('#plot_svg').remove()
+
     var svg4 = d3.select("#charts").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        .attr("id", "plot_svg");
+
+
     var svg5 = svg4.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
     var xScale = d3.scale.ordinal()

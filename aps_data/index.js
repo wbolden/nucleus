@@ -1,6 +1,6 @@
 var $ = function( id ) { return document.getElementById( id ); };
 var margin = 20,
-    diameter = screen.height - screen.height/9;
+    diameter = screen.height *12/13;
 var den_label = "Edge Density";
 var density_color = d3.scale.linear()
     .domain([0, 1, 2, 3, 4])
@@ -26,7 +26,7 @@ var pack = d3.layout.pack()
     .value(function(d) { return d.size; })
 var svg1 = d3.select("#dv_1").append("svg")
     .attr("width", screen.width - 2*margin)
-    .attr("height", diameter)
+    .attr("height", screen.height*12/13)
     .append("g")
     .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 svg1.append("text")
@@ -142,7 +142,7 @@ d3.select("#submit_size").on("click", function() {
 })
 
 function redraw(size){
-    d3.json("aps-citations_cleaned.mtx_23_IMPR_circle.json", function(error, root) {
+    d3.json("aps-citations_cleaned.mtx_34_IMPR_circle.json", function(error, root) {
         if (error) throw error;
         filter(root, size);
         var focus = root,
@@ -381,14 +381,14 @@ function redraw(size){
       zoom(root);
       function zoom(d) {
         var focus0 = focus; focus = d;
-        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_23_IMPR_circle.json" && d.parent === focus && focus !== root); })
+        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_34_IMPR_circle.json" && d.parent === focus && focus !== root); })
             .style("stroke", "#000")
             .style("stroke-width", 4)
             .style("stroke-dasharray", "4,4");
-        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_23_IMPR_circle.json" && d === focus && focus !== root); })
+        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_34_IMPR_circle.json" && d === focus && focus !== root); })
             .style("stroke-width", 4)
             .style("stroke-dasharray", "40,40");
-        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_23_IMPR_circle.json" && (d.parent !== focus && d !== focus)); })
+        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_34_IMPR_circle.json" && (d.parent !== focus && d !== focus)); })
             .style("stroke", "#000")
             .style("stroke-width", 1.0)
             .style("stroke-dasharray", "none");
