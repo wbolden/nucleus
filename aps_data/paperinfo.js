@@ -122,7 +122,7 @@ d3.tsv("aps-citations_cleaned.mtx_34_IMPR_fakedb", function(data) {
     //fields.remove(0,5); //Remove first 5 elements to be left with vertices only
 
     fields = fields.slice(0, fields.length-1) //Remove last element, always a -1
-    fields = fields.slice(5, fields.length); //Remove first 5 elements to be left with vertices only
+    fields = fields.slice(6, fields.length); //Remove first 5 elements to be left with vertices only
     for(var v = 0; v < fields.length; v++){
       fields[v] = parseInt(fields[v]);
     }
