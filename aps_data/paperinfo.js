@@ -45,7 +45,7 @@ var numIntersect = {};  //num of intersects a circle participates in
 //eg 10.1103/PhysRev.1.1 -> PA/1/PhysRev.1.1
 //Stores result in mapfile by index
 
-d3.tsv("map.txt", function(data) {
+/*d3.tsv("map.txt", function(data) {
   for(var i = 0; i < data.length; i++){
     var doi = data[i].doi.split("/")[1];
     var subfolders = doi.split(".");
@@ -55,9 +55,9 @@ d3.tsv("map.txt", function(data) {
     doifile[data[i].index] = data[i].doi;
   }
   console.log("loaded map");
-}); 
+}); */
 
-d3.json("title_map.json", function(error, data){
+/*d3.json("title_map.json", function(error, data){
     for(var i = 0; i < data.length; i++){
         titlefile[data[i].title] = data[i].paper_id; 
     }
@@ -82,26 +82,19 @@ d3.json("title_map.json", function(error, data){
       }
       removeCommonWords(keywords);
       removeCommonWords(keywords_loc);
-      /*
-      for(var key in keywords){
-          if(keywords[key] < 4){
-              delete keywords[key];
-          }
-      }
-       */
     }
 
     svg1.select("#loading")
         .remove();
     console.log("loaded keywords");
-});
+});*/
 
-d3.json("author_map.json", function(error, data){
+/*d3.json("author_map.json", function(error, data){
     for(var i = 0; i < data.length; i++){
         authorfile[data[i].author] = data[i].paper_ids; 
     }
     console.log("loaded authors");
-});
+});*/
 
 //Stores the vertices corresponding to each node in the fakedb variable
 d3.tsv("aps-citations_cleaned.mtx_34_IMPR_fakedb", function(data) {
@@ -129,7 +122,9 @@ d3.tsv("aps-citations_cleaned.mtx_34_IMPR_fakedb", function(data) {
     fakedb[index] = fields;
   }
   console.log(fakedb)
-  console.log("loaded fakedb");     
+  console.log("loaded fakedb"); 
+  svg1.select("#loading")
+        .remove();    
 });
 
 //Removes common words from the provided dictionary
@@ -167,10 +162,10 @@ function stripHTML(string){
 
 
 function display_paper_stats(){
-  top_words = [];
+  /*top_words = [];
   top_wfreq = [];
   top_authors = [];
-  top_afreq = [];
+  top_afreq = [];*/
   //console.log(word_count, author_count);
   word_count = removeCommonWords(word_count);
   var words_array = [];
@@ -187,10 +182,10 @@ function display_paper_stats(){
   var authors = "<b>Common authors:</b> ";
   for(var n = 0; n < 7; n++){
     words += words_array[n][0].concat(" (").concat(words_array[n][1]).concat(")");
-    top_words.push(words_array[n][0]);
+    /*top_words.push(words_array[n][0]);
     top_wfreq.push(words_array[n][1]);
     top_authors.push(authors_array[n][0]);
-    top_afreq.push(authors_array[n][1]);
+    top_afreq.push(authors_array[n][1]);*/
     authors += authors_array[n][0].concat(" (").concat(authors_array[n][1]).concat(")");
     if(n < 7-1) {
       words = words.concat(", ");
@@ -199,11 +194,11 @@ function display_paper_stats(){
   }
   $("classifcation").innerHTML = words.concat("<br>").concat(authors).concat("<br><br>");
     //Remove old plot if it exists
-    d3.select('#plot_svg').remove()
+    /*d3.select('#plot_svg').remove()
     d3.select('#plot_svg').remove()
     graph_words(top_words,top_wfreq,0);
-  graph_words(top_authors,top_afreq,1);
- console.log(words_array, authors_array);
+    graph_words(top_authors,top_afreq,1);*/
+    //console.log(words_array, authors_array);
 }
 
 function get_paper_info_json(error, data) {
@@ -441,27 +436,20 @@ function colorIntersections(tot_papers){
 }
 
 
-function graph_words(words,freq,type){
+function create_graph(words,freq,type){
     var data = {key: words, value: freq};
+    //console.log(data);
     for (var i = 0; i < data.value.length; i++) {
       data.value[i] = data.value[i] + i/10;
     }
-
-
-
-    var margin = {top: 40, right: 20, bottom: 130, left: 40},
+    //console.log(data);
+    var margin = {top: 40, right: 20, bottom: 130, left: 60},
         width = screen.width/4.2 - margin.left - margin.right,
         height = screen.height/3 - margin.top - margin.bottom;
-
-
-
-
     var svg4 = d3.select("#charts").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .attr("id", "plot_svg");
-
-
     var svg5 = svg4.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
     var xScale = d3.scale.ordinal()
@@ -482,12 +470,12 @@ function graph_words(words,freq,type){
         .domain(d3.range(data.value.length))
         .range(data.key);
     svg5.selectAll("rect")
-        .data(data.value, function(d) { console.log(d); return d; })
+        .data(data.value, function(d) { return d; })
         .enter()
         .append("rect")
         .attr({
-            "x": function(d, i) { console.log(i); return xScale(i); },
-            "y": function(d, i) { console.log(d); return yScale(d - i/10); },
+            "x": function(d, i) { return xScale(i); },
+            "y": function(d, i) { return yScale(d - i/10); },
             "width": xScale.rangeBand(),
             "height": function(d, i) { return height - yScale(d - i/10); },
             "fill": type == 0 ? "blue" : "green"
@@ -497,7 +485,7 @@ function graph_words(words,freq,type){
        .enter()
        .append("text")
        .text(function(d,i) {
-          return Math.round(d - i/10);
+          return Math.round(d - i/10) + "/" + getSize(clicked_node);
        })
        .attr({
           "x": function(d, i) { return xScale(i) + xScale.rangeBand()/2; }, 

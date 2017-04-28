@@ -1,4 +1,8 @@
+var tooltip = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
 var $ = function( id ) { return document.getElementById( id ); };
+var clicked_node;
 var margin = 20,
     diameter = screen.height *12/13;
 var den_label = "Edge Density";
@@ -9,7 +13,6 @@ var density_color = d3.scale.linear()
 var den_xScale = d3.scale.linear()
     .domain([0, 5])
     .range([0, 300]);
-console.log(density_color.domain().length)
 var inter_label = "Number of Intersections";
 var intersect_color = d3.scale.linear()
     .domain([1,2,3,4,5,6,7,8,9])
@@ -28,7 +31,7 @@ var svg1 = d3.select("#dv_1").append("svg")
     .attr("width", screen.width - 2*margin)
     .attr("height", screen.height*12/13)
     .append("g")
-    .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+    .attr("transform", "translate(" + screen.width/2 + "," + diameter/2 + ")");
 svg1.append("text")
     .attr("id","loading")
     .text("Loading Data...");
@@ -209,8 +212,9 @@ function redraw(size){
                     
                     $('paperinfo').innerHTML =""; 
                     $("classifcation").innerHTML ="";
-                    loadpapers(d.index);
-                    
+                    //loadpapers(d.index);
+                    load_data(d.index);
+                    clicked_node = d.name;
                     if(intersection_on){
                         displayIntersections(d,cirMap);                   
                     }else if(intersection_on == false){
@@ -228,6 +232,7 @@ function redraw(size){
                 }
             })
             .on("mouseover", function(d) {
+                showTooltip(this,d.name,d.index);
                 svg1.select("#subgraph_id").text(parsename(d.name))
                 if(getDensity(d.name) != -1.0 && intersection_on && numIntersect[d.index] != null){
                     svg1.selectAll("circle")
@@ -243,6 +248,7 @@ function redraw(size){
                 }
             })
             .on("mouseout", function(d) {
+                hideTooltip();
                 if(getDensity(d.name) != -1.0 && intersection_on && numIntersect[d.index] != null){
                     /*svg1.selectAll("#intersection_line")
                         .remove();*/
@@ -293,7 +299,7 @@ function redraw(size){
                 .style("stroke","black")
                 .style("stroke-width",1)
             var target_circle = [];
-            if (document.getElementById("paper").checked){
+            /*if (document.getElementById("paper").checked){
                 var title = document.getElementById("get_input").value;
                 target_circle = revfakedb[titlefile[title]];
                 for(var i = 0; i<target_circle.length; i++){
@@ -313,7 +319,7 @@ function redraw(size){
                         }
                     }
                 }
-            }else if (document.getElementById("word").checked){
+            }else if (document.getElementById("word").checked){*/
                 var words = document.getElementById("get_input").value.split(" ");
                 
                 console.log(words);
@@ -354,8 +360,8 @@ function redraw(size){
                         }
                     }
                 }
-
-            }
+/*
+            }*/
           })
 
           var zoom2 = d3.behavior.zoom()
@@ -435,5 +441,28 @@ function redraw(size){
       };
     });
 }
+function openNav() {
+    document.getElementById("mySidenav").style.width = "25vw";
+}
 
+function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+}
+function showTooltip(c, data, id){
+/*    var density = getDensity(data);
+    var size = getSize(data);*/
+    get_first_stat(c, data, id);
+/*    var matrix = c.getScreenCTM()
+        .translate(+c.getAttribute("cx"),+c.getAttribute("cy"));
+    tooltip.transition().duration(200).style("opacity", 1);
+    tooltip.html(
+                 "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
+                 "</p><p class='left-align'>Density:<span class='right-align'>" + density)
+        .style("left", window.pageXOffset + matrix.e + "px")     
+        .style("top", window.pageYOffset + matrix.f + "px");*/
+};
+function hideTooltip(){
+    console.log("hide");
+    tooltip.transition().duration(200).style("opacity", 0);
+};
 d3.select(self.frameElement).style("height", diameter + "px");

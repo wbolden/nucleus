@@ -6,48 +6,52 @@
 		<script type="text/javascript" src="d3.v3.js"></script>
 		<script type="text/javascript" src="Parser.js"></script>
 		<script type="text/javascript" src="paperinfo.js"></script>
+		<script type="text/javascript" src="paperinfo2.js"></script>
 	</head>
 	<body>
 	    <div class="container" style="width: 100%;">
 	        <div class="row">
-	            <div class="col-1">
-	                <input id="submit_size" type="button" value="Update Visual">
-	            </div>
 	            <div class="col-2">
-	                Size: <input id="size_limiter" type="text" name="size_change" value=""><br> 
-	            </div>
-	            <div class="col-1">
-	                <input type="checkbox" id="author">Author<input type="checkbox" id="paper">Paper<input type="checkbox" id="word">Word
-	            </div>
-	            <div class="col-1">
-	                <input id="find_data" type="button" name="Find" value="Search"><br> 
-	            </div>
-	            <div class="col-2">
-	                Input: <input id="get_input" type="text" name="paper_name" value=""><br> 
-	            </div>
+		            <div class="input-group">
+					  	<input id="size_limiter" type="text" class="form-control" placeholder="Size...">
+					  	<span class="input-group-btn">
+					    	<button id="submit_size" class="btn btn-secondary" type="button">Update Visual</button>
+					  	</span>
+					</div>
+				</div>
+				<div class="col-2">
+		            <div class="input-group">
+					  	<input id="get_input" type="text" class="form-control" placeholder="Search for...">
+					  	<span class="input-group-btn">
+					    	<button id="find_data" class="btn btn-secondary" type="button">Search</button>
+					  	</span>
+					</div>
+				</div>
 	            <div class="col-1">
 	                <input id="change_mode" type="button" name="intersection_mode" value="Intersection Mode"><br>
 	            </div>
-	            
+	            <div class="col-1">
+	            	<input type="button" name="view_data" value="View Data" onclick="openNav()"><br> 
+	            </div>
 	        </div>
 	        <div class="row">
-	            <div class="col-9">
+	            <div class="col-12">
 	                <div id="dv_1"></div>  
-	            </div>
-	            <div class="col-3">
-	                    
-	                <div class="row">
-	                    <div id="info">
-	                        <div id="legend"></div>
-	                        <center><b>Paper Information:</b></center><br>
-	                        <div id="classifcation"></div>
-	                        <div id="paperinfo"></div>
-	                        <div id="charts"></div>
-	                    </div>
-	                </div>
 	            </div>
 	        </div>
 	    </div>
+	    <div id="mySidenav" class="sidenav">
+			<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <div class="row">
+                <div id="info">
+                    <div id="legend"></div>
+                    <center><b>Paper Information:</b></center><br>
+                    <div id="classifcation"></div>
+                    <div id="paperinfo"></div>
+                    <div id="charts"></div>
+                </div>
+            </div>
+		</div>
 	    <script type="text/javascript" src="helper.js"></script>
 	    <script type="text/javascript" src="index.js"></script>   
 	</body>

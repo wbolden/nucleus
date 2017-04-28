@@ -18,6 +18,12 @@ function getDensity(str) {
   return density;                    
 }
 
+function getSize(str) {
+  var split = str.split(" ");
+  var size = parseFloat(split[0]);
+  return size;                    
+}
+
 // Array Remove - By John Resig (MIT Licensed)
 Array.prototype.remove = function(from, to) {
   var rest = this.slice((to || from) + 1 || this.length);
