@@ -26,8 +26,8 @@ function get_common_stats(error, data){
 	for (var i = 0; i < data.common_words.length; i++) {
 		var word = stripHTML(data.common_words[i][0]);
 		var wfreq = data.common_words[i][1];
-		var author = stripHTML(data.common_author[i][0])
-		var afreq = data.common_author[i][1];
+		var author = stripHTML(data.common_authors[i][0])
+		var afreq = data.common_authors[i][1];
 		top_words.push(word);
 		top_wfreq.push(wfreq);
 		top_authors.push(author);
@@ -73,7 +73,7 @@ function get_first_stat(c, data, node_id){
     tooltip.transition().duration(200).style("opacity", .9);
 	d3.json(keyword_directory, function (error, data){
 		var word = (stripHTML(data.common_words[0][0]));
-		var author = (stripHTML(data.common_author[1][0]));
+		var author = (stripHTML(data.common_authors[1][0]));
 		tooltip.html("</p><p class='center-align'>Top Word: " + word +
 	                 "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
 	                 "</p><p class='left-align'>Density:<span class='right-align'>" + density +    

@@ -85,11 +85,14 @@ function draw_legend(color, xScale, label){
         .attr("x", function(d) { return d.x0; })
         .attr("width", function(d) { return isDens ? d.x1 : d.x1/2; })
         .style("fill", function(d) { return d.z; });
+
+/*
     svg3.call(xAxis).append("text")      
         .attr("id","text_legend")
         .attr("y", -10)
         .attr("font-weight", "bold")
         .text(label); 
+        */
 }
 function delete_legend(){
     svg3.selectAll("#rect_legend")
@@ -145,6 +148,17 @@ function redraw(size){
         var cirMap = {};
         var papers = [];
         var tot_papers = {};
+
+
+        /*
+        var text = svg1.selectAll("text")
+        .data(nodes)
+        .enter().append("text")
+          .attr("class", "label")
+          .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
+          .style("display", function(d) { return d.parent === root ? "inline" : "none"; })
+          .text(function(d) { return "DOES THIS WORK" });
+        */
         
         function find_intersections(parent){
           //console.log(parent);
@@ -219,13 +233,9 @@ function redraw(size){
                         displayIntersections(d,cirMap);                   
                     }else if(intersection_on == false){
                         if (focus !== d) {
-                            zoom(d), d3.event.stopPropagation(),
-                            svg1.select("#subgraph_id")
-                                .text(parsename(d.name));
+                            zoom(d), d3.event.stopPropagation();
                         }else{
-                            zoom(root);
-                            svg1.select("#subgraph_id")
-                                .text(parsename(root.name));
+                            zoom(root);;
                         }
                     }
                     
@@ -233,7 +243,8 @@ function redraw(size){
             })
             .on("mouseover", function(d) {
                 showTooltip(this,d.name,d.index);
-                svg1.select("#subgraph_id").text(parsename(d.name))
+                //svg1.select("#subgraph_id").text(parsename(d.name))
+
                 if(getDensity(d.name) != -1.0 && intersection_on && numIntersect[d.index] != null){
                     svg1.selectAll("circle")
                         .style("fill", "white");
@@ -260,39 +271,9 @@ function redraw(size){
             });
 
 
-circle.append("svg:title")
-  .text(function(d) {
-    return "placeholder";
-  });
 
 
-
-var calculateTextFontSize = function(d) {
-  var id = d3.select(this).text();
-
-  console.log(id)
-  var radius = 0;
-  if (d.fontsize){
-    //if fontsize is already calculated use that.
-    return d.fontsize;
-  }
-  if (!d.computed ) {
-    //if computed not present get & store the getComputedTextLength() of the text field
-    d.computed = this.getComputedTextLength();
-    if(d.computed != 0){
-      //if computed is not 0 then get the visual radius of DOM
-      var r = d3.selectAll("#" + id).attr("r");
-      //if radius present in DOM use that
-      if (r) {
-        radius = r;
-      }
-      //calculate the font size and store it in object for future
-      d.fontsize = (2 * radius - 8) / d.computed * 24 + "px";
-      return d.fontsize;  
-    }
-  }
-}
-
+/*
         var text = svg1.selectAll("text")
           .data(nodes)
           .enter().append("text")
@@ -309,6 +290,7 @@ var calculateTextFontSize = function(d) {
           .style("font-size", 16)
           .attr("dy", ".35em");
 
+*/
 
 
  /*       
@@ -339,6 +321,8 @@ var calculateTextFontSize = function(d) {
             }
             svg1.selectAll("#subgraph_id")
                 .style("fill", intersection_on ? "black" : "white")
+
+
 /*            if(intersection_on){
                 colorIntersections(tot_papers);
             }else{
@@ -441,7 +425,7 @@ var calculateTextFontSize = function(d) {
             .style("stroke-dasharray", "4,4");
         circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_34_IMPR_circle.json" && d === focus && focus !== root); })
             .style("stroke-width", 4)
-            .style("stroke-dasharray", "40,40");
+            .style("stroke-dasharray", "40,40")
         circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_34_IMPR_circle.json" && (d.parent !== focus && d !== focus)); })
             .style("stroke", "#000")
             .style("stroke-width", 1.0)
@@ -455,25 +439,6 @@ var calculateTextFontSize = function(d) {
               return function(t) { zoomTo(i(t)); };
             });
 
-
-    transition.selectAll("text")
-    .filter(function(d) {
-      return d.parent === focus || this.style.display === "inline";
-    })
-    .style("fill-opacity", function(d) {
-      return d.parent === focus ? 1 : 0;
-    })
-    .each("start", function(d) {
-      if (d.parent === focus) this.style.display = "inline";
-    })
-    .each("end", function(d) {
-      if (d.parent !== focus) this.style.display = "none";
-    });
-    setTimeout(function() {
-      d3.selectAll("text").filter(function(d) {
-        return d.parent === focus || this.style.display === "inline";
-      }).style("font-size", calculateTextFontSize);
-    }, 500)
       }
 
       function zoomTo(v) {
