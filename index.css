@@ -154,3 +154,9 @@ div.tooltip {
 .center-align {
     text-align: center;
 }
+
+text {
+  font: 24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-anchor: middle;
+  pointer-events: none;
+}

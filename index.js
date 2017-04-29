@@ -138,6 +138,7 @@ d3.select("#submit_size").on("click", function() {
     redraw(size);
 })
 
+
 function redraw(size){
     d3.json("aps-citations_cleaned.mtx_34_IMPR_circle.json", function(error, root) {
         if (error) throw error;
@@ -209,6 +210,7 @@ function redraw(size){
                 id = d.index;
                 id = "p".concat(String(id));
                 return id;
+                //return "TEMPID" //TODO
             })
             .style("fill", function(d) { 
                 if (!intersection_on) return density_color(d.color);
@@ -228,7 +230,7 @@ function redraw(size){
                     $("classifcation").innerHTML ="";
                     //loadpapers(d.index);
                     load_data(d.index);
-                    clicked_node = d.name;
+                    clicked_node = d.name; //TODO: can remove this?
                     if(intersection_on){
                         displayIntersections(d,cirMap);                   
                     }else if(intersection_on == false){
@@ -242,6 +244,9 @@ function redraw(size){
                 }
             })
             .on("mouseover", function(d) {
+
+
+                //TODO modify modify getDensity and related functions for upcoming changes
                 showTooltip(this,d.name,d.index);
                 //svg1.select("#subgraph_id").text(parsename(d.name))
 
@@ -260,6 +265,7 @@ function redraw(size){
             })
             .on("mouseout", function(d) {
                 hideTooltip();
+                //TODO density/name here too
                 if(getDensity(d.name) != -1.0 && intersection_on && numIntersect[d.index] != null){
                     /*svg1.selectAll("#intersection_line")
                         .remove();*/
@@ -273,7 +279,40 @@ function redraw(size){
 
 
 
-/*
+
+//TODO need to make it so text appear for all valid nodes, valid 
+//if text side isn't too big or too small maybe? Or some weighted 
+//function based on if inner nodes would have visible text
+
+        var get_text_size = function(d){
+
+            console.log(d3.select(this).text())
+            var id = d.index;
+
+            var r = d3.select("#p"+id).attr("r");
+
+            var radius = 0;
+            if(r){
+                radius = r;
+            }
+
+
+            console.log("radius: "+radius, "CTL: "+this.getComputedTextLength())
+
+            //TODO
+            return 4*(radius-8)/(d.name.length) +"px"
+
+            //return (radius - 8)/this.getComputedTextLength()*24 + "px"
+
+            //console.log("JS way", $("p"+id).getAttribute("r"))
+
+            //console.log("d3 way",r, r.attr("r"))
+
+            return "40px"
+
+        }
+
+//TODO
         var text = svg1.selectAll("text")
           .data(nodes)
           .enter().append("text")
@@ -285,12 +324,12 @@ function redraw(size){
             return d.parent === root ? null : "none";
           })
           .text(function(d) {
-            return d.name;
+            return d.name; //Would replace this with keyword getter
           })
-          .style("font-size", 16)
+          .style("font-size", get_text_size)
           .attr("dy", ".35em");
 
-*/
+
 
 
  /*       
@@ -409,9 +448,9 @@ function redraw(size){
         
           svg1.call(zoom2);  
 
-      circle = circle.filter(function(d) {return (d.size >= 0) && (d.name != "")});
+      circle = circle.filter(function(d) {return (d.size >= 0) && (d.name != "")}); //TODO: can remove name?
         
-      var node = svg1.selectAll("circle");
+      var node = svg1.selectAll("circle, text");
 /*      d3.select("#dv_1")
           .style("background", "rgb(255,255,255)")
           .on("click", function() { zoom(root); });*/
@@ -419,17 +458,18 @@ function redraw(size){
       zoom(root);
       function zoom(d) {
         var focus0 = focus; focus = d;
-        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_34_IMPR_circle.json" && d.parent === focus && focus !== root); })
+        circle.filter(function(d) {return ( d.parent === focus && focus !== root); })
             .style("stroke", "#000")
             .style("stroke-width", 4)
             .style("stroke-dasharray", "4,4");
-        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_34_IMPR_circle.json" && d === focus && focus !== root); })
+        circle.filter(function(d) {return ( d === focus && focus !== root); })
             .style("stroke-width", 4)
             .style("stroke-dasharray", "40,40")
-        circle.filter(function(d) {return (d.fl == "aps-citations_cleaned.mtx_34_IMPR_circle.json" && (d.parent !== focus && d !== focus)); })
+        circle.filter(function(d) {return ( (d.parent !== focus && d !== focus)); })
             .style("stroke", "#000")
             .style("stroke-width", 1.0)
             .style("stroke-dasharray", "none");
+
 
         var transition = d3.transition()
             //.duration(d3.event.altKey ? 7500 : 750)
@@ -438,6 +478,34 @@ function redraw(size){
               var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
               return function(t) { zoomTo(i(t)); };
             });
+
+
+        //TODO
+          transition.selectAll("text")
+            .filter(function(d) {
+                //console.log(d)
+              return d.parent === focus || this.style.display === "inline";
+            })
+            .style("fill-opacity", function(d) {
+              return d.parent === focus ? 1 : 0;
+            })
+            .each("start", function(d) {
+              if (d.parent === focus) this.style.display = "inline";
+            })
+            .each("end", function(d) {
+              if (d.parent !== focus) this.style.display = "none";
+            })
+            .style("font-size", get_text_size);
+            ;
+
+            /*
+            setTimeout(function() {
+              d3.selectAll("text").filter(function(d) {
+                return d.parent === focus || this.style.display === "inline";
+              }).style("font-size", get_text_size);
+            }, 500)
+            */
+
 
       }
 
