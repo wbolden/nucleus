@@ -7,7 +7,7 @@ var margin = 20,
     diameter = screen.height *12/13;
 var den_label = "Edge Density";
 var density_color = d3.scale.linear()
-    .domain([0, 1, 2, 3, 4])
+    .domain([0, 0.25, 0.5, 0.75, 1])
     .range(["#4eb3d3", "#fdd49e", "#fc8d59", "#d7301f", "#7f0000"])
     .interpolate(d3.interpolate);
 var den_xScale = d3.scale.linear()
@@ -213,8 +213,13 @@ function redraw(size){
                 //return "TEMPID" //TODO
             })
             .style("fill", function(d) { 
-                if (!intersection_on) return density_color(d.color);
+                if (!intersection_on) 
+                    {
+
+                        return density_color(d.den);
+                    }
                 else{
+                    //console.log(d)
                     if(numIntersect[d.index] == null) return "white";
                     if(numIntersect[d.index] <= 9){ 
                         return intersect_color(numIntersect[d.index]);
@@ -230,7 +235,7 @@ function redraw(size){
                     $("classifcation").innerHTML ="";
                     //loadpapers(d.index);
                     load_data(d.index);
-                    clicked_node = d.name; //TODO: can remove this?
+                    clicked_node = d; //TODO: can remove this? Used in paperinfo, modified to use all of node not just node.name
                     if(intersection_on){
                         displayIntersections(d,cirMap);                   
                     }else if(intersection_on == false){
@@ -247,10 +252,12 @@ function redraw(size){
 
 
                 //TODO modify modify getDensity and related functions for upcoming changes
-                showTooltip(this,d.name,d.index);
+
+                //showTooltip(this,d.name,d.index);
+                showTooltip(this,d);
                 //svg1.select("#subgraph_id").text(parsename(d.name))
 
-                if(getDensity(d.name) != -1.0 && intersection_on && numIntersect[d.index] != null){
+                if(d.den != 0.0 && intersection_on && numIntersect[d.index] != null){
                     svg1.selectAll("circle")
                         .style("fill", "white");
                     svg1.selectAll("#p".concat(d.index))
@@ -266,7 +273,7 @@ function redraw(size){
             .on("mouseout", function(d) {
                 hideTooltip();
                 //TODO density/name here too
-                if(getDensity(d.name) != -1.0 && intersection_on && numIntersect[d.index] != null){
+                if(d.den != 0.0 && intersection_on && numIntersect[d.index] != null){
                     /*svg1.selectAll("#intersection_line")
                         .remove();*/
                     svg1.selectAll("circle")
@@ -286,7 +293,7 @@ function redraw(size){
 
         var get_text_size = function(d){
 
-            console.log(d3.select(this).text())
+            //console.log(d3.select(this).text())
             var id = d.index;
 
             var r = d3.select("#p"+id).attr("r");
@@ -297,11 +304,12 @@ function redraw(size){
             }
 
 
-            console.log("radius: "+radius, "CTL: "+this.getComputedTextLength())
+            console.log("radius: "+radius, "CTL: "+this.getComputedTextLength(), this)
 
             //TODO
-            return 4*(radius-8)/(d.name.length) +"px"
+            //return 4*(radius-8)/(d.cp.length) +"px"
 
+            return Math.min(2 * d.r, (2 * d.r - 8) / this.getComputedTextLength() * 24) + "px";
             //return (radius - 8)/this.getComputedTextLength()*24 + "px"
 
             //console.log("JS way", $("p"+id).getAttribute("r"))
@@ -324,9 +332,9 @@ function redraw(size){
             return d.parent === root ? null : "none";
           })
           .text(function(d) {
-            return d.name; //Would replace this with keyword getter
+            return d.cp; //Would replace this with keyword getter
           })
-          .style("font-size", get_text_size)
+          .style("font-size", function(d) {return d.r * (10/d.cp.length)/3})
           .attr("dy", ".35em");
 
 
@@ -350,7 +358,7 @@ function redraw(size){
                 draw_legend(density_color, den_xScale, den_label);
                 svg1.selectAll("circle")
                     .style("fill", function(d){
-                        return density_color(d.color);
+                        return density_color(d.den);
                     })
             }else{
                 intersection_on = true;
@@ -448,7 +456,8 @@ function redraw(size){
         
           svg1.call(zoom2);  
 
-      circle = circle.filter(function(d) {return (d.size >= 0) && (d.name != "")}); //TODO: can remove name?
+    //circle = circle.filter(function(d) {return (d.size >= 0) && (d.name != "")}); /
+      circle = circle.filter(function(d) {return (d.size >= 1)}); //TODO: can remove name?
         
       var node = svg1.selectAll("circle, text");
 /*      d3.select("#dv_1")
@@ -495,8 +504,8 @@ function redraw(size){
             .each("end", function(d) {
               if (d.parent !== focus) this.style.display = "none";
             })
-            .style("font-size", get_text_size);
-            ;
+            //.style("font-size", function(d) {return d.r/3});
+            //;
 
             /*
             setTimeout(function() {
@@ -509,6 +518,8 @@ function redraw(size){
 
       }
 
+
+
       function zoomTo(v) {
         var k = diameter / v[2]; view = v;
         node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
@@ -517,6 +528,8 @@ function redraw(size){
         position = zoom2.translate();
         zoom2.translate([0,0]);
 
+        svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
+
 
       }
 
@@ -524,10 +537,16 @@ function redraw(size){
 
         var k = diameter / v[2]; view = v;
         node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
-        circle.attr("r", function(d) { return d.r * k; });
+
+        svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
+
+
+        circle.attr("r", function(d) { return d.r * k; });            
       } 
 
       function zoomed() {
+
+        console.log("CALLED")
         if (intersection_on !== true){
             
             var s = zoom2.scale();
@@ -546,8 +565,12 @@ function redraw(size){
                 .tween("zoom", function() {
                     var i = d3.interpolateZoom(view, [x, y, r]);
                     return function(t) { zoomTo2(i(t)); };
-                });  
+                })
+                //.selectAll("text")
+                //.style("font-size", get_text_size);
+            ;;  
         }
+
       };
     });
 }
@@ -558,10 +581,39 @@ function openNav() {
 function closeNav() {
     document.getElementById("mySidenav").style.width = "0";
 }
-function showTooltip(c, data, id){
+function showTooltip(c, node){
+
+    //TODO
+
+
+    var density = node.den;
+    var size = node.size;
+    var word = node.cp;
+    var author = node.ca;
+
+    //if (density == undefined){
+        //console.log(node)
+    //}
+
+    var matrix = c.getScreenCTM()
+        .translate(+c.getAttribute("cx"),+c.getAttribute("cy"));
+    tooltip.transition().duration(200).style("opacity", .9);
+
+    tooltip.html("</p><p class='center-align'>Top Word: " + word +
+                     "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
+                     "</p><p class='left-align'>Density:<span class='right-align'>" + density +    
+                     "</p><p class='left-align'>Num Interescts:<span class='right-align'>" + numIntersect[node.index] +
+                     "</p><p class='left-align'>Top Author:<span class='right-align'>" + author)
+        .style("left", window.pageXOffset + matrix.e + "px")     
+        .style("top", window.pageYOffset + matrix.f + "px");
+
+
+
+
+
 /*    var density = getDensity(data);
     var size = getSize(data);*/
-    get_first_stat(c, data, id);
+   // get_first_stat(c, node);
 /*    var matrix = c.getScreenCTM()
         .translate(+c.getAttribute("cx"),+c.getAttribute("cy"));
     tooltip.transition().duration(200).style("opacity", 1);

@@ -28,6 +28,7 @@ folderhash["RevModPhys"] = "RMP";
 # Build the mapfile
 
 mapfile = {}
+doifile = {}
 
 with open(mapfile_path) as df:
 	for line in df:
@@ -42,13 +43,35 @@ with open(mapfile_path) as df:
 			
 			doi = line[0]
 
-			mapfile[line[1]] =  doi
+			doifile[line[1]] =  doi
 		except Exception as err:
 			print "No folder for key:",err, line
 
-			mapfile[line[1]] = str(err) + "(ERROR!)"
+			#mapfile[line[1]] = str(err) + "(ERROR!)"
 
 			
+with open(mapfile_path) as df:
+        for line in df:
+
+                try:
+                        line = line.split("\t")
+
+                        if line[0] == 'doi':
+                                continue
+
+                        line[1] = int(line[1])
+
+
+                        doi = line[0].split('/')[1]
+                        subfolders = doi.split('.')
+                        subfolders[0] = folderhash[subfolders[0]]
+                        subfolders[2] = doi
+
+                        mapfile[line[1]] =  ("/".join(subfolders))+".json"
+                except Exception as err:
+                        print "No folder for key:",err, line
+
+                        #mapfile[line[1]] = str(err) + "(ERROR!)"
 
 
 papercache = {}
@@ -60,14 +83,21 @@ papercache = {}
 import urllib2 as url
 import bibtexparser
 
-def get_paper(paper_index):
 
+def get_paper_online(paper_index):
+
+        #print "this got called"
 	if paper_index in papercache:
 		return papercache[paper_index]
 
-	path = "https://journals.aps.org/pr/export/"+mapfile[paper_index]
 
-        ##print "requesting %s" %(path)
+        #print paper_index
+       # print doifile[paper_index]
+       # print "sdfsdfsdfsdfdfdf"
+        
+	path = "https://journals.aps.org/pr/export/"+doifile[paper_index]
+
+        print "requesting %s" %(path)
 
 	response = url.urlopen(path)
 	html = response.read()
@@ -77,15 +107,35 @@ def get_paper(paper_index):
 	data = bd.entries[0]
 
         data['authors'] = [ "".join(x.split(',')[::-1]) for x in data['author'].split('and')]
+        data['date'] = "%s %s" % (data['month'], data['year'])
 
+        
         ##print data
         
-	papercache[paper_index] = data
-
-        
-        
+	#papercache[paper_index] = data
 
 	return data
+
+def get_paper(paper_index):
+
+        if paper_index in papercache:
+                return papercache[paper_index]
+
+        path = metadata_path+"/"+mapfile[paper_index]
+
+        try:
+                with open(path) as dataf:
+                        data = json.load(dataf)
+                        data['title'] = data['title']['value']
+                        data['authors'] = [author['name'] for author in data['authors']]
+        except:
+                print "Failed to open %s, loading from online" %(path)
+                data =  get_paper_online(paper_index);
+                #print "Retrieved: ", data
+
+        papercache[paper_index] = data
+
+        return data
 
 
 #Removes irrelevant words from the provided dictionary
@@ -126,9 +176,9 @@ def write_info(set_index, paper_index_array):
 		try:
 			paper = get_paper(index)
 
-			title = paper['title']['value']
+			title = paper['title']
 			date = paper['date']
-			authors = [author['name'] for author in paper['authors']]
+			authors = [author for author in paper['authors']]
 
 			for author in authors:
 				if author in common_authors:
@@ -144,14 +194,14 @@ def write_info(set_index, paper_index_array):
 				else:
 					common_words[word]=1
 
-			'''
+			
 			relevant_info = {}
 			relevant_info['title'] = title
 			relevant_info['authors'] = authors
 			relevant_info['date'] = date
 
 			papers.append(relevant_info)
-			'''
+			
 
 			#print title
 
@@ -175,10 +225,10 @@ def write_info(set_index, paper_index_array):
 
 	all_kw[set_index] = keywords
 
-	'''
+	
 	with open(papers_filename, 'w') as file:
 		json.dump(papers, file)
-	'''
+	
 
 	with open(keyword_filename, 'w') as file:
 		json.dump(keywords, file)

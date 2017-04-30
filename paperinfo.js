@@ -485,7 +485,7 @@ function create_graph(words,freq,type){
        .enter()
        .append("text")
        .text(function(d,i) {
-          return Math.round(d - i/10) + "/" + getSize(clicked_node);
+          return Math.round(d - i/10) + "/" + clicked_node.size;
        })
        .attr({
           "x": function(d, i) { return xScale(i) + xScale.rangeBand()/2; }, 

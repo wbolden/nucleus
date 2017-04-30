@@ -6942,7 +6942,7 @@ function getvalue(str) {
 
 
   function d3_layout_packSort(a, b) {
-    return getvalue(a.name) - getvalue(b.name);
+    return a.den - b.den;
      
   }
 
