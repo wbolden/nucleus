@@ -335,7 +335,8 @@ function redraw(size){
             return d.cp; //Would replace this with keyword getter
           })
           .style("font-size", function(d) {return d.r * (10/d.cp.length)/3})
-          .attr("dy", ".35em");
+          .attr("dy", ".35em")
+          .attr("id", function(d){return "l"+d.index;});
 
 
 
@@ -490,6 +491,7 @@ function redraw(size){
 
 
         //TODO
+        /*
           transition.selectAll("text")
             .filter(function(d) {
                 //console.log(d)
@@ -500,10 +502,14 @@ function redraw(size){
             })
             .each("start", function(d) {
               if (d.parent === focus) this.style.display = "inline";
+              console.log(this)
             })
             .each("end", function(d) {
               if (d.parent !== focus) this.style.display = "none";
             })
+
+            */
+
             //.style("font-size", function(d) {return d.r/3});
             //;
 
@@ -517,6 +523,11 @@ function redraw(size){
 
 
       }
+      
+
+
+
+        
 
 
 
@@ -528,20 +539,135 @@ function redraw(size){
         position = zoom2.translate();
         zoom2.translate([0,0]);
 
-        svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
+        //svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
+                    svg1.selectAll("text") //.style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 })
+                                    .attr("style", function(d){ 
+                                        var fs = d.r * (10/d.cp.length) *k/3;
+                                        fs = ";font-size:"+fs;
 
+                                        var minr = 30;
+
+                                        if(d.children == undefined || d.children.length == 0){
+                                            if(d.r* k > minr){
+                                                return "display:inline"+fs
+                                            }else {
+                                                return "display:none"+fs
+                                            }
+                                            
+                                        }
+
+                                        for(var i = 0; i < d.children.length; i++){
+                                            var child = d.children[i];
+                                            //console.log(child)
+                                            if(child.r* k > minr){
+                                                //console.log(child.r)
+                                                return "display:none"+fs
+                                            }
+                                        }
+
+                                            if(d.r* k > minr){
+                                                return "display:inline"+fs
+                                            }else {
+                                                return "display:none"+fs
+                                            }
+                                        //console.log(d)
+
+                                    });
 
       }
 
+/*
+        function set_text_visibility(parent){
+            console.log("called")
+            var parent_node = d3.select("#p"+parent.index)
+            var parent_text = d3.select("#l"+parent.index)
+            //console.log(parent_text)
+
+            
+            
+            //d3.select(parent_text).attr("style", "display:none")
+
+            if(parent.children == undefined || parent.children.length == 0) {
+                if( +parent_node.attr("r") > 30){
+                    parent_text.attr("style", "display:inline")
+                }
+                return;
+            }
+
+            var pass_count = 0
+            for(var i = 0; i < parent.children.length; i++){
+                var child = parent.children[i];
+
+                var child_node = d3.select("#p"+child.index)
+
+                if ( +child_node.attr("r") > 30){
+                    pass_count++;
+                }
+            }
+
+            //Hide the parent if 3 or more children, or all of its children, can be displayed
+            if (pass_count >= Math.min(parent.children.length, 3)) {
+                //if(parent != root){
+                    parent_text.attr("style", "display:none")
+                //}
+            
+
+                for(var i = 0; i < parent.children.length; i++){
+                    var child = parent.children[i];
+                    set_text_visibility(child);
+                }
+            }
+        }
+*/
       function zoomTo2(v) {
 
+
+        
+
+        var oldk = diameter / view[2];
         var k = diameter / v[2]; view = v;
         node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
 
-        svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
+        //console.log(k, oldk)
 
+        if (k != oldk){
+            svg1.selectAll("text") //.style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 })
+                                    .attr("style", function(d){ 
+                                        var fs = d.r * (10/d.cp.length) *k/3;
+                                        fs = ";font-size:"+fs;
 
-        circle.attr("r", function(d) { return d.r * k; });            
+                                        var minr = 30;
+
+                                        if(d.children == undefined || d.children.length == 0){
+                                            if(d.r* k > minr){
+                                                return "display:inline"+fs
+                                            }else {
+                                                return "display:none"+fs
+                                            }
+                                            
+                                        }
+
+                                        for(var i = 0; i < d.children.length; i++){
+                                            var child = d.children[i];
+                                            //console.log(child)
+                                            if(child.r* k > minr){
+                                                //console.log(child.r)
+                                                return "display:none"+fs
+                                            }
+                                        }
+
+                                            if(d.r* k > minr){
+                                                return "display:inline"+fs
+                                            }else {
+                                                return "display:none"+fs
+                                            }
+                                        //console.log(d)
+
+                                    });
+
+            circle.attr("r", function(d) { return d.r * k; });  
+        }
+       // set_text_visibility(root);          
       } 
 
       function zoomed() {
