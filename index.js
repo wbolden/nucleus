@@ -545,7 +545,22 @@ function redraw(size){
                                         var fs = d.r * (10/d.cp.length) *k/3;
                                         fs = ";font-size:"+fs;
 
-                                        var minr = 30;
+                                        /*
+                                        //fs = fs + ";opacity:"+ Math.min(((d.r*k)/40),1.0);
+                                        if (d.children == undefined || d.children.length == 0){
+                                            if((d.r*k - 50) > 0){
+                                                opacity = 1.0;
+                                            }
+                                        }
+                                        //console.log(opacity)
+                                        fs = fs + ";opacity:"+opacity; //+ Math.min(((d.r*k)/20),1.0);
+
+                                        return "display:inline"+fs;
+
+                                        */
+
+
+                                        var minr = 20;
 
                                         if(d.children == undefined || d.children.length == 0){
                                             if(d.r* k > minr){
@@ -636,7 +651,33 @@ function redraw(size){
                                         var fs = d.r * (10/d.cp.length) *k/3;
                                         fs = ";font-size:"+fs;
 
-                                        var minr = 30;
+                                        /*
+                                        var x = (d.r*k - 50);
+
+                                        if(x < 0){
+                                            x *= 0.5;
+                                        }
+
+                                        var opacity = Math.exp(-0.01*x*x)
+
+
+
+                                        if (d.children == undefined || d.children.length == 0){
+                                            if((d.r*k - 50) > 0){
+                                                opacity = 1.0;
+                                            }
+                                        }
+
+                                      
+
+                                        //console.log(opacity)
+                                        fs = "display:inline"+fs + ";opacity:"+opacity; //+ Math.min(((d.r*k)/20),1.0);
+
+
+                                        return fs;
+                                        */
+
+                                        var minr = 1;
 
                                         if(d.children == undefined || d.children.length == 0){
                                             if(d.r* k > minr){
