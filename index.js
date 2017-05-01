@@ -560,7 +560,7 @@ function redraw(size){
                                         */
 
 
-                                        var minr = 20;
+                                        var minr = 30;
                                         var opacity = Math.min(d.r*k/minr, 1.0); 
                                         fs = fs + ";opacity:"+opacity;
 
@@ -686,7 +686,7 @@ function redraw(size){
                                         return fs;
                                         */
 
-                                        var minr = 20;
+                                        var minr = 30;
                                         var opacity = Math.min(d.r*k/minr, 1.0); 
                                         fs = fs + ";opacity:"+opacity;
 
