@@ -387,6 +387,9 @@ function displayIntersections(d,cirMap){
                 "#ccebc5",
                 "#ffed6f"]);
     var color_index = 0*/
+
+    svg1.selectAll("text").attr("style", "display:none")
+
     for(var p_id in cirMap[d.index]){
         /*color_index++;*/
         /*console.log(p_id);
@@ -402,6 +405,8 @@ function displayIntersections(d,cirMap){
                 })
                 .style("stroke-width",4)
                 .style("stroke","yellow");
+
+            d3.select("#l"+c_id).attr("style", "display:inline;font-size:32")
             /*var x = svg1.selectAll("#p".concat(c_id))[0][0].__data__.x;
             var y = svg1.selectAll("#p".concat(c_id))[0][0].__data__.y;
             svg1.append("line")
@@ -418,6 +423,8 @@ function displayIntersections(d,cirMap){
 
 //Colors all intersections
 function colorIntersections(tot_papers){
+    svg1.selectAll("text").attr("style", "display:none")
+
     svg1.selectAll("circle")
         .style("fill", "white");
     for(var p_id in tot_papers){

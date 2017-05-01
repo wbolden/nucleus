@@ -363,9 +363,11 @@ function redraw(size){
                     })
             }else{
                 intersection_on = true;
+		//
                 draw_legend(intersect_color2, inter_xScale, inter_label);
                 colorIntersections(tot_papers);
                 zoom(root);
+		//svg1.selectAll("text").attr("style", "display:none")
             }
             svg1.selectAll("#subgraph_id")
                 .style("fill", intersection_on ? "black" : "white")
@@ -539,7 +541,8 @@ function redraw(size){
         position = zoom2.translate();
         zoom2.translate([0,0]);
 
-        //svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
+          //svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
+	  if(!intersection_on){
                     svg1.selectAll("text") //.style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 })
                                     .attr("style", function(d){ 
                                         var fs = d.r * (10/d.cp.length) *k/3;
@@ -597,6 +600,7 @@ function redraw(size){
                                         //console.log(d)
 
                                     });
+	  }
 
       }
 
@@ -787,7 +791,7 @@ function showTooltip(c, node){
     tooltip.html("</p><p class='center-align'>Top Word: " + word +
                      "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
                      "</p><p class='left-align'>Density:<span class='right-align'>" + density +    
-                     "</p><p class='left-align'>Num Interescts:<span class='right-align'>" + numIntersect[node.index] +
+                     "</p><p class='left-align'>Intersections:<span class='right-align'>" + numIntersect[node.index] +
                      "</p><p class='left-align'>Top Author:<span class='right-align'>" + author)
         .style("left", window.pageXOffset + matrix.e + "px")     
         .style("top", window.pageYOffset + matrix.f + "px");
