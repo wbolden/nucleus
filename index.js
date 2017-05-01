@@ -561,11 +561,20 @@ function redraw(size){
 
 
                                         var minr = 20;
+                                        var opacity = Math.min(d.r*k/minr, 1.0); 
+                                        fs = fs + ";opacity:"+opacity;
 
                                         if(d.children == undefined || d.children.length == 0){
                                             if(d.r* k > minr){
                                                 return "display:inline"+fs
                                             }else {
+                                                for(var i = 0; i < d.parent.children.length; i++){
+                                                    if (d.parent.children[i].r*k > minr){
+
+                                                        
+                                                        return "display:inline"+fs
+                                                    }
+                                                }
                                                 return "display:none"+fs
                                             }
                                             
@@ -677,12 +686,21 @@ function redraw(size){
                                         return fs;
                                         */
 
-                                        var minr = 1;
+                                        var minr = 20;
+                                        var opacity = Math.min(d.r*k/minr, 1.0); 
+                                        fs = fs + ";opacity:"+opacity;
 
                                         if(d.children == undefined || d.children.length == 0){
                                             if(d.r* k > minr){
                                                 return "display:inline"+fs
                                             }else {
+                                                for(var i = 0; i < d.parent.children.length; i++){
+                                                    if (d.parent.children[i].r*k > minr){
+
+                                                        
+                                                        return "display:inline"+fs
+                                                    }
+                                                }
                                                 return "display:none"+fs
                                             }
                                             
