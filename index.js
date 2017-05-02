@@ -86,13 +86,14 @@ function draw_legend(color, xScale, label){
         .attr("width", function(d) { return isDens ? d.x1 : d.x1/2; })
         .style("fill", function(d) { return d.z; });
 
-/*
+
     svg3.call(xAxis).append("text")      
         .attr("id","text_legend")
         .attr("y", -10)
+        .attr("x", isDens? 30 : 60)
         .attr("font-weight", "bold")
         .text(label); 
-        */
+        
 }
 function delete_legend(){
     svg3.selectAll("#rect_legend")
@@ -254,10 +255,11 @@ function redraw(size){
                 //TODO modify modify getDensity and related functions for upcoming changes
 
                 //showTooltip(this,d.name,d.index);
-                showTooltip(this,d);
+                if (!intersection_on) { showTooltip(this,d); }
                 //svg1.select("#subgraph_id").text(parsename(d.name))
 
                 if(d.den != 0.0 && intersection_on && numIntersect[d.index] != null){
+                    
                     svg1.selectAll("circle")
                         .style("fill", "white");
                     svg1.selectAll("#p".concat(d.index))
@@ -813,7 +815,6 @@ function showTooltip(c, node){
         .style("top", window.pageYOffset + matrix.f + "px");*/
 };
 function hideTooltip(){
-    console.log("hide");
     tooltip.transition().duration(200).style("opacity", 0);
 };
 d3.select(self.frameElement).style("height", diameter + "px");
