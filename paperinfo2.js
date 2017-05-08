@@ -3,14 +3,14 @@ function load_data(node_id){
 	d3.select('#plot_svg').remove();
     d3.select('#plot_svg').remove();
 
-	var keyword_directory = "output/output/"
+	var keyword_directory = "output/output/keywords/"
 					.concat(String(node_id)
-					.concat(".keywords.json"));
+					.concat(".json"));
 	d3.json(keyword_directory, get_common_stats);
 
-	var paper_directory = "output/output/"
+	var paper_directory = "output/output/papers/"
 					.concat(String(node_id)
-					.concat(".papers.json"));
+					.concat(".json"));
 	d3.json(paper_directory, get_circle_stats);
 }
 
@@ -63,9 +63,9 @@ function get_circle_stats(error, data){
 }
 
 function get_first_stat(c, data, node_id){
-	var keyword_directory = "output/output/"
+	var keyword_directory = "output/output/keywords/"
 					.concat(String(node_id)
-					.concat(".keywords.json"));
+					.concat(".json"));
 	var density = getDensity(data);
     var size = getSize(data);
     var matrix = c.getScreenCTM()
