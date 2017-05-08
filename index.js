@@ -794,7 +794,7 @@ function showTooltip(c, node){
                      "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
                      "</p><p class='left-align'>Density:<span class='right-align'>" + density +    
                      "</p><p class='left-align'>Intersections:<span class='right-align'>" + numIntersect[node.index] +
-                 "</p><p class='left-align'>Top Author:<span class='right-align'>" + author
+                 "</p><p class='left-align'>Top Author:<span class='right-align'>" + author + 
 		"</p><p class='left-align'> k-value: <span class='right-align'>" + node.k)
         .style("left", window.pageXOffset + matrix.e + "px")     
         .style("top", window.pageYOffset + matrix.f + "px");
