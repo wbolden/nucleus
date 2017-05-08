@@ -389,7 +389,7 @@ function displayIntersections(d,cirMap){
     var color_index = 0*/
 
     svg1.selectAll("text").attr("style", "display:none")
-
+    d3.select("#l"+d.index).attr("style", "display:inline;font-size:32")
     for(var p_id in cirMap[d.index]){
         /*color_index++;*/
         /*console.log(p_id);
