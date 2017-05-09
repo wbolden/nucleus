@@ -3,7 +3,7 @@ var tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 var $ = function( id ) { return document.getElementById( id ); };
 var clicked_node;
-var margin = 20,
+var margin = 0,
     diameter = screen.height *12/13;
 var den_label = "Edge Density";
 var density_color = d3.scale.linear()
@@ -37,12 +37,23 @@ svg1.append("text")
     .text("Loading Data...");
 /////////////////////////////Code for legend//////////////////////////////////////
 var svg2 = d3.select("#legend").append("svg")
-    .attr("width", screen.width/4 + margin)
-    .attr("height", screen.height/8 + margin);
+.attr("width", 400)
+.attr("height", 50);
+ //   .attr("width", screen.width/4 + margin)
+//    .attr("height", screen.height/8 + margin);
 var svg3 = svg2.append("g")
     .attr("class", "key")
-    .attr("transform", "translate("+ margin +","+ margin*2 +")");
+//.attr("style","margin:auto; display:block;")
+//    .attr("transform", "translate("+ margin +","+ margin*2 +")");
 function draw_legend(color, xScale, label){
+/*
+  if(isDir){
+    svg3.attr("style", )
+  }
+else {
+
+}
+*/
     var formatNumber = d3.format(",d");
     var isDens = color.domain().length == 5 ? true : false;
     var densityScale = d3.scale.linear()
@@ -90,7 +101,7 @@ function draw_legend(color, xScale, label){
     svg3.call(xAxis).append("text")      
         .attr("id","text_legend")
         .attr("y", -10)
-        .attr("x", isDens? 30 : 60)
+        .attr("x", isDens ? 30 : 60)
         .attr("font-weight", "bold")
         .text(label); 
         
@@ -766,7 +777,7 @@ function redraw(size){
     });
 }
 function openNav() {
-    document.getElementById("mySidenav").style.width = "25vw";
+    document.getElementById("mySidenav").style.width = "400px";
 }
 
 function closeNav() {

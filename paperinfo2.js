@@ -26,8 +26,8 @@ function get_common_stats(error, data){
 	for (var i = 0; i < data.common_words.length; i++) {
 		var word = stripHTML(data.common_words[i][0]);
 		var wfreq = data.common_words[i][1];
-		var author = stripHTML(data.common_author[i][0])
-		var afreq = data.common_author[i][1];
+		var author = stripHTML(data.common_authors[i][0])
+		var afreq = data.common_authors[i][1];
 		top_words.push(word);
 		top_wfreq.push(wfreq);
 		top_authors.push(author);
