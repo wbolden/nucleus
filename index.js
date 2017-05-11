@@ -2,9 +2,10 @@ var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")               
     .style("opacity", 0);
 var $ = function( id ) { return document.getElementById( id ); };
+var buttons_height = document.getElementById("buttons").clientHeight;
 var clicked_node;
 var margin = 0,
-    diameter = screen.height *12/13;
+    diameter = window.innerHeight - buttons_height;
 var den_label = "Edge Density";
 var density_color = d3.scale.linear()
     .domain([0, 0.25, 0.5, 0.75, 1])
@@ -22,36 +23,36 @@ var intersect_color2 = d3.scale.linear()
     .range(["#4daf4a","#4daf4a","#377eb8","#377eb8","#ff7f00","#ff7f00","#984ea3","#984ea3","#e41a1c"]);
 var inter_xScale = d3.scale.linear()
     .domain([0, 8])
-    .range([0, 400]);
+    .range([0, 300]);
 var pack = d3.layout.pack()
     .padding(2)
     .size([diameter - margin, diameter - margin])
     .value(function(d) { return d.size; })
 var svg1 = d3.select("#dv_1").append("svg")
-    .attr("width", screen.width - 2*margin)
-    .attr("height", screen.height*12/13)
+    .attr("id", "circle_pack_canvas")
+    .attr("preserveAspectRatio", "xMinYMin slice")
+    .attr("viewBox", "0,0,"+window.innerWidth+","+diameter)
+    //.attr("height", window.innerHeight)
+    //.attr("width", window.innerWidth)
     .append("g")
-    .attr("transform", "translate(" + screen.width/2 + "," + diameter/2 + ")");
+    .attr("transform", "translate(" + window.innerWidth/2 + "," + diameter/2 + ")");
 svg1.append("text")
     .attr("id","loading")
     .text("Loading Data...");
 /////////////////////////////Code for legend//////////////////////////////////////
 var svg2 = d3.select("#legend").append("svg")
-.attr("width", 400)
-.attr("height", 50);
- //   .attr("width", screen.width/4 + margin)
-//    .attr("height", screen.height/8 + margin);
+    .attr("width", 400)
+    .attr("height", 100);
 var svg3 = svg2.append("g")
     .attr("class", "key")
-//.attr("style","margin:auto; display:block;")
-//    .attr("transform", "translate("+ margin +","+ margin*2 +")");
+    .attr("style","margin:auto; display:block;")
+    .attr("transform", "translate("+ 20 +","+ 40 +")");
 function draw_legend(color, xScale, label){
 /*
   if(isDir){
     svg3.attr("style", )
   }
 else {
-
 }
 */
     var formatNumber = d3.format(",d");
@@ -96,7 +97,6 @@ else {
         .attr("x", function(d) { return d.x0; })
         .attr("width", function(d) { return isDens ? d.x1 : d.x1/2; })
         .style("fill", function(d) { return d.z; });
-
 
     svg3.call(xAxis).append("text")      
         .attr("id","text_legend")
@@ -161,8 +161,6 @@ function redraw(size){
         var cirMap = {};
         var papers = [];
         var tot_papers = {};
-
-
         /*
         var text = svg1.selectAll("text")
         .data(nodes)
@@ -353,7 +351,6 @@ function redraw(size){
 
 
 
-
  /*       
         svg1.append("text")
             .attr("id","subgraph_id")
@@ -522,7 +519,6 @@ function redraw(size){
             .each("end", function(d) {
               if (d.parent !== focus) this.style.display = "none";
             })
-
             */
 
             //.style("font-size", function(d) {return d.r/3});
@@ -539,20 +535,11 @@ function redraw(size){
 
       }
       
-
-
-
-        
-
-
-
       function zoomTo(v) {
         var k = diameter / v[2]; view = v;
         node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
         circle.attr("r", function(d) { return d.r * k; });
-        zoom2.scale(980 / (focus.r*2 + margin)); 
-        position = zoom2.translate();
-        zoom2.translate([0,0]);
+        
 
           //svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
 	  if(!intersection_on){
@@ -570,9 +557,7 @@ function redraw(size){
                                         }
                                         //console.log(opacity)
                                         fs = fs + ";opacity:"+opacity; //+ Math.min(((d.r*k)/20),1.0);
-
                                         return "display:inline"+fs;
-
                                         */
 
 
@@ -614,7 +599,9 @@ function redraw(size){
 
                                     });
 	  }
-
+            zoom2.scale(980 / (focus.r*2 + margin)); 
+            position = zoom2.translate();
+            zoom2.translate([0,0]);
       }
 
 /*
@@ -623,36 +610,29 @@ function redraw(size){
             var parent_node = d3.select("#p"+parent.index)
             var parent_text = d3.select("#l"+parent.index)
             //console.log(parent_text)
-
             
             
             //d3.select(parent_text).attr("style", "display:none")
-
             if(parent.children == undefined || parent.children.length == 0) {
                 if( +parent_node.attr("r") > 30){
                     parent_text.attr("style", "display:inline")
                 }
                 return;
             }
-
             var pass_count = 0
             for(var i = 0; i < parent.children.length; i++){
                 var child = parent.children[i];
-
                 var child_node = d3.select("#p"+child.index)
-
                 if ( +child_node.attr("r") > 30){
                     pass_count++;
                 }
             }
-
             //Hide the parent if 3 or more children, or all of its children, can be displayed
             if (pass_count >= Math.min(parent.children.length, 3)) {
                 //if(parent != root){
                     parent_text.attr("style", "display:none")
                 //}
             
-
                 for(var i = 0; i < parent.children.length; i++){
                     var child = parent.children[i];
                     set_text_visibility(child);
@@ -662,9 +642,6 @@ function redraw(size){
 */
       function zoomTo2(v) {
 
-
-        
-
         var oldk = diameter / view[2];
         var k = diameter / v[2]; view = v;
         node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
@@ -673,73 +650,64 @@ function redraw(size){
 
         if (k != oldk){
             svg1.selectAll("text") //.style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 })
-                                    .attr("style", function(d){ 
-                                        var fs = d.r * (10/d.cp.length) *k/3;
-                                        fs = ";font-size:"+fs;
+                .attr("style", function(d){ 
+                    var fs = d.r * (10/d.cp.length) *k/3;
+                    fs = ";font-size:"+fs;
 
-                                        /*
-                                        var x = (d.r*k - 50);
+                    /*
+                    var x = (d.r*k - 50);
+                    if(x < 0){
+                        x *= 0.5;
+                    }
+                    var opacity = Math.exp(-0.01*x*x)
+                    if (d.children == undefined || d.children.length == 0){
+                        if((d.r*k - 50) > 0){
+                            opacity = 1.0;
+                        }
+                    }
+                  
+                    //console.log(opacity)
+                    fs = "display:inline"+fs + ";opacity:"+opacity; //+ Math.min(((d.r*k)/20),1.0);
+                    return fs;
+                    */
 
-                                        if(x < 0){
-                                            x *= 0.5;
-                                        }
+                    var minr = 30;
+                    var opacity = Math.min(d.r*k/minr, 1.0); 
+                    fs = fs + ";opacity:"+opacity;
 
-                                        var opacity = Math.exp(-0.01*x*x)
+                    if(d.children == undefined || d.children.length == 0){
+                        if(d.r* k > minr){
+                            return "display:inline"+fs
+                        }else {
+                            for(var i = 0; i < d.parent.children.length; i++){
+                                if (d.parent.children[i].r*k > minr){
 
+                                    
+                                    return "display:inline"+fs
+                                }
+                            }
+                            return "display:none"+fs
+                        }
+                        
+                    }
 
+                    for(var i = 0; i < d.children.length; i++){
+                        var child = d.children[i];
+                        //console.log(child)
+                        if(child.r* k > minr){
+                            //console.log(child.r)
+                            return "display:none"+fs
+                        }
+                    }
 
-                                        if (d.children == undefined || d.children.length == 0){
-                                            if((d.r*k - 50) > 0){
-                                                opacity = 1.0;
-                                            }
-                                        }
+                        if(d.r* k > minr){
+                            return "display:inline"+fs
+                        }else {
+                            return "display:none"+fs
+                        }
+                    //console.log(d)
 
-                                      
-
-                                        //console.log(opacity)
-                                        fs = "display:inline"+fs + ";opacity:"+opacity; //+ Math.min(((d.r*k)/20),1.0);
-
-
-                                        return fs;
-                                        */
-
-                                        var minr = 30;
-                                        var opacity = Math.min(d.r*k/minr, 1.0); 
-                                        fs = fs + ";opacity:"+opacity;
-
-                                        if(d.children == undefined || d.children.length == 0){
-                                            if(d.r* k > minr){
-                                                return "display:inline"+fs
-                                            }else {
-                                                for(var i = 0; i < d.parent.children.length; i++){
-                                                    if (d.parent.children[i].r*k > minr){
-
-                                                        
-                                                        return "display:inline"+fs
-                                                    }
-                                                }
-                                                return "display:none"+fs
-                                            }
-                                            
-                                        }
-
-                                        for(var i = 0; i < d.children.length; i++){
-                                            var child = d.children[i];
-                                            //console.log(child)
-                                            if(child.r* k > minr){
-                                                //console.log(child.r)
-                                                return "display:none"+fs
-                                            }
-                                        }
-
-                                            if(d.r* k > minr){
-                                                return "display:inline"+fs
-                                            }else {
-                                                return "display:none"+fs
-                                            }
-                                        //console.log(d)
-
-                                    });
+                });
 
             circle.attr("r", function(d) { return d.r * k; });  
         }
@@ -779,7 +747,6 @@ function redraw(size){
 function openNav() {
     document.getElementById("mySidenav").style.width = "400px";
 }
-
 function closeNav() {
     document.getElementById("mySidenav").style.width = "0";
 }
@@ -809,22 +776,6 @@ function showTooltip(c, node){
 		"</p><p class='left-align'> k-value: <span class='right-align'>" + node.k)
         .style("left", window.pageXOffset + matrix.e + "px")     
         .style("top", window.pageYOffset + matrix.f + "px");
-
-
-
-
-
-/*    var density = getDensity(data);
-    var size = getSize(data);*/
-   // get_first_stat(c, node);
-/*    var matrix = c.getScreenCTM()
-        .translate(+c.getAttribute("cx"),+c.getAttribute("cy"));
-    tooltip.transition().duration(200).style("opacity", 1);
-    tooltip.html(
-                 "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
-                 "</p><p class='left-align'>Density:<span class='right-align'>" + density)
-        .style("left", window.pageXOffset + matrix.e + "px")     
-        .style("top", window.pageYOffset + matrix.f + "px");*/
 };
 function hideTooltip(){
     tooltip.transition().duration(200).style("opacity", 0);

@@ -64,7 +64,6 @@ var numIntersect = {};  //num of intersects a circle participates in
     reverseFakedb();
     console.log("loaded revfakedb");
     console.log("loaded titles");
-
     if(buildsearch){
       for(var title in titlefile){
           str = title.split(" ");
@@ -83,7 +82,6 @@ var numIntersect = {};  //num of intersects a circle participates in
       removeCommonWords(keywords);
       removeCommonWords(keywords_loc);
     }
-
     svg1.select("#loading")
         .remove();
     console.log("loaded keywords");
@@ -450,7 +448,7 @@ function create_graph(words,freq,type){
       data.value[i] = data.value[i] + i/10;
     }
     //console.log(data);
-    var margin = {top: 40, right: 20, bottom: 130, left: 60},
+    var margin = {top: 40, right: 20, bottom: 200, left: 60},
         width = screen.width/4.2 - margin.left - margin.right,
         height = screen.height/3 - margin.top - margin.bottom;
     var svg4 = d3.select("#charts").append("svg")
@@ -613,4 +611,4 @@ function loadpapers(nodeindex){
     });
   }
 }
-*/    
+*/

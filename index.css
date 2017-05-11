@@ -1,6 +1,22 @@
+body {
+    margin-left: 0; 
+    margin-right: 0; 
+    margin-bottom: 0;
+    overflow-y: hidden;
+}
+#container {
+    margin = 0;
+    width: 100vh;
+    height: 100vh;
+}
 #dv_1 {
     margin: 0 auto;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
     text-align: center;
+    height: auto;
+    width: auto;
 }
 .axis path,
 .axis line {
@@ -28,7 +44,7 @@
     display: block;
     margin: auto;
     width: 100%;
-    height: 5vw;
+    height: 100px;
     background-color: white;
 }
 #classifcation {
@@ -36,6 +52,10 @@
     height: 5vw;
     background-color: white;
     overflow-y:scroll;
+}
+#infolabel {
+    width: 100%;
+    height: 5vw;
 }
 #paperinfo {
     width: 100%; 

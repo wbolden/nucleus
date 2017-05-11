@@ -83,4 +83,3 @@ function get_first_stat(c, data, node_id){
         .style("top", window.pageYOffset + matrix.f + "px");
 	});
 }
-
