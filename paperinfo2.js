@@ -1,5 +1,6 @@
-function load_data(node_id){
+function load_data(node){
 
+	var node_id = node.index;
 	d3.select('#plot_svg').remove();
     d3.select('#plot_svg').remove();
 
@@ -8,10 +9,16 @@ function load_data(node_id){
 					.concat(".json"));
 	d3.json(keyword_directory, get_common_stats);
 
-	var paper_directory = "output/output/papers/"
-					.concat(String(node_id)
-					.concat(".json"));
-	d3.json(paper_directory, get_circle_stats);
+	//Don't load papers if there are too many. Really we 
+	//should just load a fraction of the papers if there
+	//are too many to load everything
+	if(node.size < 1000){
+		var paper_directory = "output/output/papers/"
+						.concat(String(node_id)
+						.concat(".json"));
+
+		d3.json(paper_directory, get_circle_stats);
+	}
 }
 
 function get_common_stats(error, data){

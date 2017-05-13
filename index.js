@@ -238,17 +238,22 @@ function redraw(size){
                     $('paperinfo').innerHTML =""; 
                     $("classifcation").innerHTML ="";
                     //loadpapers(d.index);
-                    load_data(d.index);
+                    load_data(d);
                     clicked_node = d; //TODO: can remove this? Used in paperinfo, modified to use all of node not just node.name
                     if(intersection_on){
                         displayIntersections(d,cirMap);                   
-                    }else if(intersection_on == false){
+                    }
+
+                    select(d);
+                    /*
+                    else if( && intersection_on == false){
                         if (focus !== d) {
                             zoom(d), d3.event.stopPropagation();
                         }else{
                             zoom(root);;
                         }
                     }
+                    */
                     
                 }
             })
@@ -471,6 +476,24 @@ function redraw(size){
           .on("click", function() { zoom(root); });*/
       zoomTo([root.x, root.y, root.r * 2 + margin]);
       zoom(root);
+
+
+      function select(d) {
+      	var focus0 = focus; focus = d;
+        circle.filter(function(d) {return ( d.parent === focus && focus !== root); })
+            .style("stroke", "#000")
+            .style("stroke-width", 4)
+            .style("stroke-dasharray", "2,2");
+        circle.filter(function(d) {return ( d === focus && focus !== root); })
+            .style("stroke-width", 4)
+           // .style("stroke-dasharray", "80,80")
+        circle.filter(function(d) {return ( (d.parent !== focus && d !== focus)); })
+            .style("stroke", "#000")
+            .style("stroke-width", 1.0)
+            .style("stroke-dasharray", "none");
+      }
+
+
       function zoom(d) {
         var focus0 = focus; focus = d;
         circle.filter(function(d) {return ( d.parent === focus && focus !== root); })
