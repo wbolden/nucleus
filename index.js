@@ -128,7 +128,8 @@ var saveScale = null;
 var saveTranslation = null;
 var intersection_on = false;
 
-d3.select("#submit_size").on("click", function() {
+
+function resize(){
     var size = parseInt(document.getElementById("size_limiter").value);
     svg1.selectAll("circle")
         .remove();
@@ -143,7 +144,9 @@ d3.select("#submit_size").on("click", function() {
         draw_legend(intersect_color2, inter_xScale, inter_label);
     }
     redraw(size);
-})
+}
+
+d3.select("#submit_size").on("click", resize)
 
 
 function redraw(size){
@@ -391,14 +394,15 @@ function redraw(size){
                     })
             }*/
         })
-        
-        d3.select("#find_data").on("click", function() {
+
+
+        function search(){
             svg1.selectAll("circle")
                 .style("stroke","black")
                 .style("stroke-width",1)
             var target_circle = [];
             /*if (document.getElementById("paper").checked){
-                var title = document.getElementById("get_input").value;
+                var title = document.getElementById("search_input").value;
                 target_circle = revfakedb[titlefile[title]];
                 for(var i = 0; i<target_circle.length; i++){
                     svg1.selectAll('#p'.concat(target_circle[i]))
@@ -406,7 +410,7 @@ function redraw(size){
                         .style("stroke","yellow");
                 }
             }else if (document.getElementById("author").checked){
-                var author = document.getElementById("get_input").value;
+                var author = document.getElementById("search_input").value;
                 for(var j = 0; j<authorfile[author].length; j++){
                     if(revfakedb[authorfile[author][j]] != undefined){
                         target_circle = revfakedb[authorfile[author][j]];
@@ -418,7 +422,7 @@ function redraw(size){
                     }
                 }
             }else if (document.getElementById("word").checked){*/
-                var words = document.getElementById("get_input").value.split(" ");
+                var words = document.getElementById("search_input").value.split(" ");
                 
                 console.log(words);
                 //Not quite intersection, intersection with the empty set does nothing
@@ -460,7 +464,9 @@ function redraw(size){
                 }
 /*
             }*/
-          })
+          }
+        
+        d3.select("#find_data").on("click", search)
         
           zoom2 = d3.behavior.zoom()
             .scaleExtent([1, 100])

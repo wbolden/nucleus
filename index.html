@@ -13,7 +13,7 @@
 	        <div class="row" id="buttons">
 	            <div class="col-2">
 		            <div class="input-group">
-					  	<input id="size_limiter" type="text" class="form-control" placeholder="Size...">
+					  	<input id="size_limiter" type="text" class="form-control" onchange="resize()" placeholder="Size...">
 					  	<span class="input-group-btn">
 					    	<button id="submit_size" class="btn btn-secondary" type="button">Update Visual</button>
 					  	</span>
@@ -21,7 +21,7 @@
 				</div>
 				<div class="col-2">
 		            <div class="input-group">
-					  	<input id="get_input" type="text" class="form-control" placeholder="Search for...">
+					  	<input id="search_input" type="text" class="form-control" onchange="search()" placeholder="Search for...">
 					  	<span class="input-group-btn">
 					    	<button id="find_data" class="btn btn-secondary" type="button">Search</button>
 					  	</span>
