@@ -440,7 +440,6 @@ function colorIntersections(tot_papers){
     }
 }
 
-
 function create_graph(words,freq,type){
     var data = {key: words, value: freq};
     //console.log(data);

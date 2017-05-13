@@ -3,9 +3,13 @@ var tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 var $ = function( id ) { return document.getElementById( id ); };
 var buttons_height = document.getElementById("buttons").clientHeight;
+var dv_1_size = document.getElementById("dv_1");
+var width = dv_1_size.clientWidth;
+var height = dv_1_size.clientHeight;
 var clicked_node;
 var margin = 0,
-    diameter = window.innerHeight - buttons_height;
+    diameter = (window.outerHeight - buttons_height);
+console.log(diameter);
 var den_label = "Edge Density";
 var density_color = d3.scale.linear()
     .domain([0, 0.25, 0.5, 0.75, 1])
@@ -30,15 +34,13 @@ var pack = d3.layout.pack()
     .value(function(d) { return d.size; })
 var svg1 = d3.select("#dv_1").append("svg")
     .attr("id", "circle_pack_canvas")
-    .attr("preserveAspectRatio", "xMinYMin slice")
-    .attr("viewBox", "0,0,"+window.innerWidth+","+diameter)
-    //.attr("height", window.innerHeight)
-    //.attr("width", window.innerWidth)
+    .attr("viewBox", "0,0,"+diameter*2+","+diameter*10)
     .append("g")
-    .attr("transform", "translate(" + window.innerWidth/2 + "," + diameter/2 + ")");
+    .attr("transform", "translate(" + diameter + "," + diameter/2 + ")");
 svg1.append("text")
     .attr("id","loading")
     .text("Loading Data...");
+var zoom2;
 /////////////////////////////Code for legend//////////////////////////////////////
 var svg2 = d3.select("#legend").append("svg")
     .attr("width", 400)
@@ -48,13 +50,6 @@ var svg3 = svg2.append("g")
     .attr("style","margin:auto; display:block;")
     .attr("transform", "translate("+ 20 +","+ 40 +")");
 function draw_legend(color, xScale, label){
-/*
-  if(isDir){
-    svg3.attr("style", )
-  }
-else {
-}
-*/
     var formatNumber = d3.format(",d");
     var isDens = color.domain().length == 5 ? true : false;
     var densityScale = d3.scale.linear()
@@ -169,8 +164,7 @@ function redraw(size){
           .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
           .style("display", function(d) { return d.parent === root ? "inline" : "none"; })
           .text(function(d) { return "DOES THIS WORK" });
-        */
-        
+        */      
         function find_intersections(parent){
           //console.log(parent);
 
@@ -462,11 +456,10 @@ function redraw(size){
 /*
             }*/
           })
-
-          var zoom2 = d3.behavior.zoom()
-                .scaleExtent([1, 100])
-                .on("zoom", zoomed);
         
+          zoom2 = d3.behavior.zoom()
+            .scaleExtent([1, 100])
+            .on("zoom", zoomed);
           svg1.call(zoom2);  
 
     //circle = circle.filter(function(d) {return (d.size >= 0) && (d.name != "")}); /
@@ -599,7 +592,7 @@ function redraw(size){
 
                                     });
 	  }
-            zoom2.scale(980 / (focus.r*2 + margin)); 
+            zoom2.scale(diameter / (focus.r*2 + margin)); 
             position = zoom2.translate();
             zoom2.translate([0,0]);
       }
@@ -641,13 +634,11 @@ function redraw(size){
         }
 */
       function zoomTo2(v) {
-
         var oldk = diameter / view[2];
         var k = diameter / v[2]; view = v;
         node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
-
-        //console.log(k, oldk)
-
+        svg1.selectAll("circle")
+            .attr("r", function(d) { return d.r * k; });
         if (k != oldk){
             svg1.selectAll("text") //.style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 })
                 .attr("style", function(d){ 
@@ -708,8 +699,6 @@ function redraw(size){
                     //console.log(d)
 
                 });
-
-            circle.attr("r", function(d) { return d.r * k; });  
         }
        // set_text_visibility(root);          
       } 
@@ -735,12 +724,10 @@ function redraw(size){
                 .tween("zoom", function() {
                     var i = d3.interpolateZoom(view, [x, y, r]);
                     return function(t) { zoomTo2(i(t)); };
-                })
+                });
                 //.selectAll("text")
-                //.style("font-size", get_text_size);
-            ;;  
+                //.style("font-size", get_text_size); 
         }
-
       };
     });
 }
@@ -769,15 +756,29 @@ function showTooltip(c, node){
     tooltip.transition().duration(200).style("opacity", .9);
 
     tooltip.html("</p><p class='center-align'>Top Word: " + word +
-                     "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
-                     "</p><p class='left-align'>Density:<span class='right-align'>" + density +    
-                     "</p><p class='left-align'>Intersections:<span class='right-align'>" + numIntersect[node.index] +
+                 "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
+                 "</p><p class='left-align'>Density:<span class='right-align'>" + density +    
+                 "</p><p class='left-align'>Intersections:<span class='right-align'>" + numIntersect[node.index] +
                  "</p><p class='left-align'>Top Author:<span class='right-align'>" + author + 
-		"</p><p class='left-align'> k-value: <span class='right-align'>" + node.k)
+		         "</p><p class='left-align'>k-value: <span class='right-align'>" + node.k)
         .style("left", window.pageXOffset + matrix.e + "px")     
         .style("top", window.pageYOffset + matrix.f + "px");
 };
 function hideTooltip(){
     tooltip.transition().duration(200).style("opacity", 0);
 };
+function call_redraw(){
+    width = window.outerWidth;
+    height = window.outerHeight;
+    var size = parseInt(document.getElementById("size_limiter").value);
+    svg1.select("#circle_pack_canvas")
+        .attr("viewBox", "0,0,"+width+","+height);
+    svg1.selectAll("circle")
+        .remove();
+    svg1.selectAll("text")
+        .remove();
+    redraw(size);
+    zoom2.scale(1);
+}
+window.addEventListener("resize", call_redraw);
 d3.select(self.frameElement).style("height", diameter + "px");

@@ -3,20 +3,18 @@ body {
     margin-right: 0; 
     margin-bottom: 0;
     overflow-y: hidden;
+    overflow-x: hidden;
 }
 #container {
     margin = 0;
-    width: 100vh;
-    height: 100vh;
 }
 #dv_1 {
     margin: 0 auto;
+    text-align: center;
     margin-left: 0;
     margin-right: 0;
-    margin-bottom: 0;
-    text-align: center;
-    height: auto;
     width: auto;
+    height: auto;
 }
 .axis path,
 .axis line {
