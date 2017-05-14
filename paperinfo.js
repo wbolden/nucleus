@@ -449,7 +449,7 @@ function create_graph(words,freq,type){
     //console.log(data);
     var margin = {top: 40, right: 20, bottom: 200, left: 60},
         width = screen.width/4.2 - margin.left - margin.right,
-        height = screen.height/3 - margin.top - margin.bottom;
+        height = 400 - margin.top - margin.bottom;
     var svg4 = d3.select("#charts").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
