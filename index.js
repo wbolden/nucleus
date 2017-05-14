@@ -414,15 +414,16 @@ function redraw(size){
 
 
       function select(d) {
-      	var focus0 = focus; focus = d;
-        circle.filter(function(d) {return ( d.parent === focus && focus !== root); })
+      	//var focus0 = focus; focus = d;
+      	var selected = d;
+        circle.filter(function(d) {return ( d.parent === selected && selected !== root); })
             .style("stroke", "#000")
             .style("stroke-width", 4)
             .style("stroke-dasharray", "2,2");
-        circle.filter(function(d) {return ( d === focus && focus !== root); })
+        circle.filter(function(d) {return ( d === selected && selected !== root); })
             .style("stroke-width", 4)
            // .style("stroke-dasharray", "80,80")
-        circle.filter(function(d) {return ( (d.parent !== focus && d !== focus)); })
+        circle.filter(function(d) {return ( (d.parent !== selected && d !== selected)); })
             .style("stroke", "#000")
             .style("stroke-width", 1.0)
             .style("stroke-dasharray", "none");
