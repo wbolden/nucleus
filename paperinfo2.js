@@ -12,7 +12,7 @@ function load_data(node){
 	//Don't load papers if there are too many. Really we 
 	//should just load a fraction of the papers if there
 	//are too many to load everything
-	if(node.size < 1000){
+	if(node.size < 1700){
 		var paper_directory = "output/output/papers/"
 						.concat(String(node_id)
 						.concat(".json"));
@@ -55,18 +55,24 @@ function get_common_stats(error, data){
 
 function get_circle_stats(error, data){
 	if (error) throw error;
+  console.log("Loading",data.length,"papers")
+       
+        var paperinfo_string = "";
+        var paperinfo = "";
 	for (var i = 0; i < data.length; i++) {
-		var title = "<b>Title: </b>".concat(data[i].title).concat("<br>");
-		var authors = "<b>Authors: </b>";
-		for (var j = 0; j < data[i].authors.length; j++) {
-			authors = authors.concat(data[i].authors[j]).concat(", ");
+		var title = "<b>Title: </b>"+data[i].title +"<br>";
+
+                //To avoid an if inside the loop
+		var authors = "<b>Authors: </b>"+data[i].authors[0];
+		for (var j = 1; j < data[i].authors.length; j++) {
+			authors += ", "+data[i].authors[j];
 		}
 		authors = authors.concat("<br>");
-		var paperinfo = title.concat(authors) + 
-						"<b>Published: <b>" + 
+		paperinfo += title +authors + 
+						"<b>Published: </b>" + 
 						data[i].date + "<br><br>";
-		$('paperinfo').innerHTML += paperinfo;
 	}
+        $('paperinfo').innerHTML += paperinfo;
 }
 
 function get_first_stat(c, data, node_id){
