@@ -236,7 +236,7 @@ function redraw(size){
                 }
             })    
             .on("click", function(d) { 
-                if (d3.event.defaultPrevented != true){
+                /*if (d3.event.defaultPrevented != true){*/
                     
                     $('paperinfo').innerHTML =""; 
                     $("classifcation").innerHTML ="";
@@ -258,7 +258,7 @@ function redraw(size){
                     }
                     */
                     
-                }
+                /*}*/
             })
             .on("mouseover", function(d) {
 
@@ -266,7 +266,7 @@ function redraw(size){
                 //TODO modify modify getDensity and related functions for upcoming changes
 
                 //showTooltip(this,d.name,d.index);
-                if (!intersection_on) { showTooltip(this,d); }
+                showTooltip(this,d,root);
                 //svg1.select("#subgraph_id").text(parsename(d.name))
 
                 if(d.den != 0.0 && intersection_on && numIntersect[d.index] != null){
@@ -394,77 +394,6 @@ function redraw(size){
                     })
             }*/
         })
-
-
-        function search(){
-            svg1.selectAll("circle")
-                .style("stroke","black")
-                .style("stroke-width",1)
-            var target_circle = [];
-            /*if (document.getElementById("paper").checked){
-                var title = document.getElementById("search_input").value;
-                target_circle = revfakedb[titlefile[title]];
-                for(var i = 0; i<target_circle.length; i++){
-                    svg1.selectAll('#p'.concat(target_circle[i]))
-                        .style("stroke-width",4)
-                        .style("stroke","yellow");
-                }
-            }else if (document.getElementById("author").checked){
-                var author = document.getElementById("search_input").value;
-                for(var j = 0; j<authorfile[author].length; j++){
-                    if(revfakedb[authorfile[author][j]] != undefined){
-                        target_circle = revfakedb[authorfile[author][j]];
-                        for(var k = 0; k<target_circle.length; k++){
-                            svg1.selectAll('#p'.concat(target_circle[k]))
-                                .style("stroke-width",4)
-                                .style("stroke","yellow");
-                        }
-                    }
-                }
-            }else if (document.getElementById("word").checked){*/
-                var words = document.getElementById("search_input").value.split(" ");
-                
-                console.log(words);
-                //Not quite intersection, intersection with the empty set does nothing
-                function intersection(a,b){
-                    if(a.length == 0){
-                        return b;
-                    }
-                    if(b.length == 0){
-                        return a;
-                    }
-                    return a.filter(function(n) {
-                           return b.indexOf(n) !== -1;
-                    });
-                }                                  
-                var papers = [];
-                console.log(papers)
-
-                for (var i = 0; i < words.length; i++){
-                    console.log("words: ", i, words[i])
-                    var newpapers = keywords_loc[words[i]];
-                    if(newpapers == undefined){
-                        newpapers = [];
-                    }
-                    papers = intersection(papers, newpapers);
-                }
-                console.log(papers)
-
-                for(var i = 0; i<papers.length; i++){
-                                                
-                    if(revfakedb[papers[i]] != undefined){
-                        target_circle = revfakedb[papers[i]];
-                        console.log(target_circle);
-                        for(var j = 0; j<target_circle.length; j++){
-                            svg1.selectAll('#p'.concat(target_circle[j]))
-                                .style("stroke-width",4)
-                                .style("stroke","yellow");
-                        }
-                    }
-                }
-/*
-            }*/
-          }
         
         d3.select("#find_data").on("click", search)
         
@@ -761,17 +690,84 @@ function redraw(size){
       };
     });
 }
+function search(){
+    svg1.selectAll("circle")
+        .style("stroke","black")
+        .style("stroke-width",1)
+    var target_circle = [];
+    /*if (document.getElementById("paper").checked){
+        var title = document.getElementById("search_input").value;
+        target_circle = revfakedb[titlefile[title]];
+        for(var i = 0; i<target_circle.length; i++){
+            svg1.selectAll('#p'.concat(target_circle[i]))
+                .style("stroke-width",4)
+                .style("stroke","yellow");
+        }
+    }else if (document.getElementById("author").checked){
+        var author = document.getElementById("search_input").value;
+        for(var j = 0; j<authorfile[author].length; j++){
+            if(revfakedb[authorfile[author][j]] != undefined){
+                target_circle = revfakedb[authorfile[author][j]];
+                for(var k = 0; k<target_circle.length; k++){
+                    svg1.selectAll('#p'.concat(target_circle[k]))
+                        .style("stroke-width",4)
+                        .style("stroke","yellow");
+                }
+            }
+        }
+    }else if (document.getElementById("word").checked){*/
+        var words = document.getElementById("search_input").value.split(" ");
+        
+        console.log(words);
+        //Not quite intersection, intersection with the empty set does nothing
+        function intersection(a,b){
+            if(a.length == 0){
+                return b;
+            }
+            if(b.length == 0){
+                return a;
+            }
+            return a.filter(function(n) {
+                   return b.indexOf(n) !== -1;
+            });
+        }                                  
+        var papers = [];
+        console.log(papers)
+
+        for (var i = 0; i < words.length; i++){
+            console.log("words: ", i, words[i])
+            var newpapers = keywords_loc[words[i]];
+            if(newpapers == undefined){
+                newpapers = [];
+            }
+            papers = intersection(papers, newpapers);
+        }
+        console.log(papers)
+
+        for(var i = 0; i<papers.length; i++){
+                                        
+            if(revfakedb[papers[i]] != undefined){
+                target_circle = revfakedb[papers[i]];
+                console.log(target_circle);
+                for(var j = 0; j<target_circle.length; j++){
+                    svg1.selectAll('#p'.concat(target_circle[j]))
+                        .style("stroke-width",4)
+                        .style("stroke","yellow");
+                }
+            }
+        }
+/*
+    }*/
+  }
 function openNav() {
     document.getElementById("mySidenav").style.width = "400px";
 }
 function closeNav() {
     document.getElementById("mySidenav").style.width = "0";
 }
-function showTooltip(c, node){
+function showTooltip(c, node, root){
 
     //TODO
-
-
     var density = node.den;
     var size = node.size;
     var word = node.cp;
@@ -781,18 +777,23 @@ function showTooltip(c, node){
         //console.log(node)
     //}
 
+    if(intersection_on){
+        c = document.getElementById("p".concat(root.index));
+    }
     var matrix = c.getScreenCTM()
         .translate(+c.getAttribute("cx"),+c.getAttribute("cy"));
     tooltip.transition().duration(200).style("opacity", .9);
-
+    var x = intersection_on ? (matrix.e/2 - tooltip[0][0].clientWidth) : window.pageXOffset + matrix.e;
+    var y = window.pageYOffset + matrix.f +
+            (intersection_on ? (- tooltip[0][0].clientHeight/2) : 0);
     tooltip.html("</p><p class='center-align'>Top Word: " + word +
                  "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
                  "</p><p class='left-align'>Density:<span class='right-align'>" + density +    
                  "</p><p class='left-align'>Intersections:<span class='right-align'>" + numIntersect[node.index] +
                  "</p><p class='left-align'>Top Author:<span class='right-align'>" + author + 
 		         "</p><p class='left-align'>k-value: <span class='right-align'>" + node.k)
-        .style("left", window.pageXOffset + matrix.e + "px")     
-        .style("top", window.pageYOffset + matrix.f + "px");
+        .style("left", x + "px")     
+        .style("top", y + "px");
 };
 function hideTooltip(){
     tooltip.transition().duration(200).style("opacity", 0);
