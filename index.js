@@ -786,7 +786,7 @@ function showTooltip(c, node, root){
     tooltip.transition().duration(200).style("opacity", .9);
     var x = intersection_on ? (matrix.e/2 - tooltip[0][0].clientWidth) : window.pageXOffset + matrix.e;
     var y = window.pageYOffset + matrix.f +
-            (intersection_on ? (matrix.f - tooltip[0][0].clientHeight) : 0);
+            (intersection_on ? (matrix.f/2) : 0);
     tooltip.html("</p><p class='center-align'>Top Word: " + word +
                  "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
                  "</p><p class='left-align'>Density:<span class='right-align'>" + density +    
