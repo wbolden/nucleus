@@ -773,6 +773,10 @@ function showTooltip(c, node, root){
     var size = node.size;
     var word = node.cp;
     var author = node.ca;
+    var intersections = numIntersect[node.index];
+    if(intersections === undefined){
+	   intersections = 0;
+    }
 
     //if (density == undefined){
         //console.log(node)
@@ -790,7 +794,7 @@ function showTooltip(c, node, root){
     tooltip.html("</p><p class='center-align'>Top Word: " + word +
                  "</p><p class='left-align'>Papers:<span class='right-align'>" + size +
                  "</p><p class='left-align'>Density:<span class='right-align'>" + density +    
-                 "</p><p class='left-align'>Intersections:<span class='right-align'>" + numIntersect[node.index] +
+                 "</p><p class='left-align'>Intersections:<span class='right-align'>" + intersections +
                  "</p><p class='left-align'>Top Author:<span class='right-align'>" + author + 
 		         "</p><p class='left-align'>k-value: <span class='right-align'>" + node.k)
         .style("left", x + "px")     
