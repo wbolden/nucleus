@@ -422,7 +422,7 @@ function redraw(size){
             .style("stroke-dasharray", "2,2");
         circle.filter(function(d) {return ( d === selected && selected !== root); })
             .style("stroke-width", 4)
-           // .style("stroke-dasharray", "80,80")
+            .style("stroke-dasharray", "none")
         circle.filter(function(d) {return ( (d.parent !== selected && d !== selected)); })
             .style("stroke", "#000")
             .style("stroke-width", 1.0)

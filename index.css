@@ -79,7 +79,7 @@ body {
   fill: white;
 }
 .label {
-  font: 16px "Tamahoe", Tamahoe, Tamahoe, Tamahoe;
+  font: 16px "Sans Serif";/*, Tamahoe, Tamahoe, Tamahoe;*/
   text-anchor: middle;
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
 }
