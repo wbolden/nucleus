@@ -127,9 +127,11 @@ var position;
 var saveScale = null;
 var saveTranslation = null;
 var intersection_on = false;
-
+var labels_on = true;
+var label_pos = {};
 
 function resize(){
+    labels_on = true;
     var size = parseInt(document.getElementById("size_limiter").value);
     svg1.selectAll("circle")
         .remove();
@@ -350,9 +352,19 @@ function redraw(size){
           .style("font-size", function(d) {return d.r * (10/d.cp.length)/3})
           .attr("dy", ".35em")
           .attr("id", function(d){return "l"+d.index;});
-
-
-
+    
+        d3.select("#view_labels").on("click", function(){
+            if(labels_on){
+                labels_on = false;
+                svg1.selectAll("text")
+                    .style("fill-opacity", 0);
+            }else{
+                labels_on = true;
+                zoomed();
+                svg1.selectAll("text")
+                    .style("fill-opacity", 1);
+            }
+        })
  /*       
         svg1.append("text")
             .attr("id","subgraph_id")
@@ -365,8 +377,14 @@ function redraw(size){
 
         
         d3.select("#change_mode").on("click", function(){
+            var labels_off_before_toggle = false;
             delete_legend();
             if(intersection_on){
+                zoomed();
+                if(labels_off_before_toggle){
+                    labels_on = false;
+                    labels_off_before_toggle = false;
+                }
                 intersection_on = false; 
                 draw_legend(density_color, den_xScale, den_label);
                 svg1.selectAll("circle")
@@ -374,8 +392,11 @@ function redraw(size){
                         return density_color(d.den);
                     })
             }else{
+                if(!labels_on){
+                    labels_on = true;
+                    labels_off_before_toggle = true;
+                }
                 intersection_on = true;
-		//
                 draw_legend(intersect_color2, inter_xScale, inter_label);
                 colorIntersections(tot_papers);
                 zoom(root);
@@ -405,7 +426,8 @@ function redraw(size){
     //circle = circle.filter(function(d) {return (d.size >= 0) && (d.name != "")}); /
       circle = circle.filter(function(d) {return (d.size >= 1)}); //TODO: can remove name?
         
-      var node = svg1.selectAll("circle, text");
+      var node = svg1.selectAll("circle");
+      var node_text = svg1.selectAll("text");
 /*      d3.select("#dv_1")
           .style("background", "rgb(255,255,255)")
           .on("click", function() { zoom(root); });*/
@@ -490,12 +512,18 @@ function redraw(size){
       function zoomTo(v) {
         var k = diameter / v[2]; view = v;
         node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
+        node_text.attr("transform", function(d) { 
+            label_pos[d.index] = [(d.x - v[0]) * k , (d.y - v[1]) * k];
+            if(labels_on){
+                return "translate(" + label_pos[d.index][0] + "," + label_pos[d.index][1] + ")"; 
+            }           
+        });
         svg1.selectAll("circle")
             .attr("r", function(d) { return d.r * k; });
         
 
           //svg1.selectAll("text").style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 });
-	  if(!intersection_on){
+	  if(!intersection_on && labels_on){
                     svg1.selectAll("text") //.style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 })
                                     .attr("style", function(d){ 
                                         var fs = d.r * (10/d.cp.length) *k/3;
@@ -597,9 +625,15 @@ function redraw(size){
         var oldk = diameter / view[2];
         var k = diameter / v[2]; view = v;
         node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
+        node_text.attr("transform", function(d) { 
+            label_pos[d.index] = [(d.x - v[0]) * k , (d.y - v[1]) * k];
+            if(labels_on){
+                return "translate(" + label_pos[d.index][0] + "," + label_pos[d.index][1] + ")"; 
+            }           
+        });
         svg1.selectAll("circle")
             .attr("r", function(d) { return d.r * k; });
-        if (k != oldk){
+        if (k != oldk && labels_on){
             svg1.selectAll("text") //.style( "font-size", function(d) {return d.r * (10/d.cp.length) *k/3 })
                 .attr("style", function(d){ 
                     var fs = d.r * (10/d.cp.length) *k/3;
