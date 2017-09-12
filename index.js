@@ -244,6 +244,7 @@ function redraw(size){
                     $("classifcation").innerHTML ="";
                     //loadpapers(d.index);
                     load_data(d);
+		    console.log(d);
                     clicked_node = d; //TODO: can remove this? Used in paperinfo, modified to use all of node not just node.name
                     if(intersection_on){
                         displayIntersections(d,cirMap);                   
